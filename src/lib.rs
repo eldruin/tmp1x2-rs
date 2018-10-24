@@ -21,6 +21,27 @@
 //!
 //! ## Usage examples (see also examples folder)
 //!
+//! ### Read temperature
+//!
+//! Import this crate and an `embedded_hal` implementation, then instantiate
+//! the device:
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate tmp1x2;
+//!
+//! use hal::I2cdev;
+//! use tmp1x2::{ Tmp1x2, SlaveAddr };
+//!
+//! # fn main() {
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let address = SlaveAddr::default();
+//! let mut sensor = Tmp1x2::new(dev, address);
+//! let temperature = sensor.read_temperature().unwrap();
+//! println!("Temperature: {}", temperature);
+//! # }
+//! ```
+//!
 //! ### Provide an alternative address
 //!
 //! ```no_run
