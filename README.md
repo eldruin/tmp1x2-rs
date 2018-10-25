@@ -10,6 +10,8 @@ This driver allows you to:
 - Enable/disable the device.
 - Read the temperature.
 - Enable/disable the extended measurement mode.
+- Trigger a one-shot measurement.
+- Read whether the one-shot measurement result is ready.
 
 ## The devices
 

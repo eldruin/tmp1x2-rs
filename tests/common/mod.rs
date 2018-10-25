@@ -19,6 +19,7 @@ pub struct BitFlagsLow;
 impl BitFlagsLow {
     pub const SHUTDOWN        : u8 = 0b0000_0001;
     pub const RESOLUTION      : u8 = 0b0110_0000;
+    pub const ONE_SHOT        : u8 = 0b1000_0000;
 }
 
 pub struct BitFlagsHigh;
@@ -29,6 +30,9 @@ impl BitFlagsHigh {
     pub const ALERT         : u8 = 0b0010_0000;
     pub const CONV_RATE1    : u8 = 0b1000_0000;
 }
+
+pub const DEFAULT_CONFIG_MSB: u8 = BitFlagsHigh::CONV_RATE1 | BitFlagsHigh::ALERT;
+pub const DEFAULT_CONFIG_LSB: u8 = BitFlagsLow::RESOLUTION;
 
 pub fn setup(expectations: &[I2cTransaction]) -> Tmp1x2<I2cMock> {
     let i2c = I2cMock::new(&expectations);

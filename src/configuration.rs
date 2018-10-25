@@ -38,11 +38,27 @@ where
         self.write_config(lsb, msb & !BitFlagsHigh::EXTENDED_MODE)
     }
 
+    /// Trigger a one-shot measurement when in shutdown mode (disabled).
+    ///
+    /// This allows triggering a single temperature measurement when in
+    /// shutdown mode. The device returns to the shutdown state at the
+    /// completion of the temperature conversion. This reduces power
+    /// consumption when continuous temperature monitoring is not required.
+    ///
+    /// See also: [is_one_shot_measurement_result_ready()](#method.is_one_shot_measurement_result_ready)
+    pub fn trigger_one_shot_measurement(&mut self) -> Result<(), Error<E>> {
+        // This bit is not stored
+        self.i2c
+            .write(self.address, &[Register::CONFIG, self.config.msb,
+                                   self.config.lsb | BitFlagsLow::ONE_SHOT])
+            .map_err(Error::I2C)
+    }
+
     fn write_config(&mut self, lsb: u8, msb: u8) -> Result<(), Error<E>> {
         self.i2c
             .write(self.address, &[Register::CONFIG, msb, lsb])
             .map_err(Error::I2C)?;
-        self.config = Config { lsb, msb};
+        self.config = Config { lsb, msb };
         Ok(())
     }
 }

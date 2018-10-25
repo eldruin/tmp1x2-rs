@@ -8,6 +8,8 @@
 //! - Enable/disable the device.
 //! - Read the temperature.
 //! - Enable/disable the extended measurement mode.
+//! - Trigger a one-shot measurement.
+//! - Read whether the one-shot measurement result is ready.
 //!
 //! ## The devices
 //!
@@ -171,6 +173,7 @@ struct BitFlagsLow;
 impl BitFlagsLow {
     const SHUTDOWN        : u8 = 0b0000_0001;
     const RESOLUTION      : u8 = 0b0110_0000;
+    const ONE_SHOT        : u8 = 0b1000_0000;
 }
 
 struct BitFlagsHigh;
