@@ -7,6 +7,7 @@
 //! This driver allows you to:
 //! - Enable/disable the device.
 //! - Read the temperature.
+//! - Enable/disable the extended measurement mode.
 //!
 //! ## The devices
 //!
@@ -175,6 +176,7 @@ impl BitFlagsLow {
 struct BitFlagsHigh;
 
 impl BitFlagsHigh {
+    const EXTENDED_MODE : u8 = 0b0001_0000;
     const ALERT         : u8 = 0b0010_0000;
     const CONV_RATE1    : u8 = 0b1000_0000;
 }

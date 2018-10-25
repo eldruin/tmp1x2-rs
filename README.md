@@ -9,6 +9,7 @@ high-accuracy, low-power, digital temperature sensors, based on the
 This driver allows you to:
 - Enable/disable the device.
 - Read the temperature.
+- Enable/disable the extended measurement mode.
 
 ## The devices
 
