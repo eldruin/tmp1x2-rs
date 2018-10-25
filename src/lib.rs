@@ -116,6 +116,22 @@
 //! sensor.enable().unwrap();
 //! # }
 //! ```
+//!
+//! ### Enable the extended measurement mode
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate tmp1x2;
+//!
+//! use hal::I2cdev;
+//! use tmp1x2::{ Tmp1x2, SlaveAddr };
+//!
+//! # fn main() {
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
+//! sensor.enable_extended_mode().unwrap();
+//! # }
+//! ```
 
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
