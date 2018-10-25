@@ -132,6 +132,27 @@
 //! sensor.enable_extended_mode().unwrap();
 //! # }
 //! ```
+//!
+//! ### Trigger a one-shot measurement while in shutdown
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate tmp1x2;
+//!
+//! use hal::I2cdev;
+//! use tmp1x2::{ Tmp1x2, SlaveAddr };
+//!
+//! # fn main() {
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
+//! sensor.disable().unwrap(); // shutdown
+//! sensor.trigger_one_shot_measurement().unwrap();
+//! while(!sensor.is_one_shot_measurement_result_ready().unwrap()) {
+//!     // insert some delay here
+//! }
+//! let temperature = sensor.read_temperature().unwrap();
+//! # }
+//! ```
 
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
