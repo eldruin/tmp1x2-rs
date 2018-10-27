@@ -9,8 +9,9 @@ pub struct Register;
 
 #[allow(unused)]
 impl Register {
-    pub const TEMPERATURE   : u8 = 0x00;
-    pub const CONFIG    : u8 = 0x01;
+    pub const TEMPERATURE : u8 = 0x00;
+    pub const CONFIG      : u8 = 0x01;
+    pub const T_LOW       : u8 = 0x02;
     pub const T_HIGH      : u8 = 0x03;
 }
 

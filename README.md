@@ -13,6 +13,7 @@ This driver allows you to:
 - Trigger a one-shot measurement.
 - Read whether the one-shot measurement result is ready.
 - Set the conversion rate.
+- Set the high/low temperature threshold.
 
 ## The devices
 

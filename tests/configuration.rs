@@ -70,3 +70,6 @@ macro_rules! set_value_test {
 
 set_value_test!(can_set_high_temp_th_m0_25, set_high_temperature_threshold, -0.25,  Register::T_HIGH, 0b1100_0000, 0b1111_1111);
 set_value_test!(can_set_high_temp_th_127, set_high_temperature_threshold, 127.9375, Register::T_HIGH, 0b1111_0000, 0b0111_1111);
+
+set_value_test!(can_set_low_temp_th_m0_25, set_low_temperature_threshold, -0.25,  Register::T_LOW, 0b1100_0000, 0b1111_1111);
+set_value_test!(can_set_low_temp_th_127, set_low_temperature_threshold, 127.9375, Register::T_LOW, 0b1111_0000, 0b0111_1111);

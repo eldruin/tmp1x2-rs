@@ -84,6 +84,22 @@ where
         }
     }
 
+    /// Set the low temperature threshold.
+    ///
+    /// The value provided will be capped to be in the interval
+    /// [-128.0, 127.9375] in normal mode and [-256.0, 255.875] in
+    /// extended mode.
+    pub fn set_low_temperature_threshold(&mut self, temperature: f32) -> Result<(), Error<E>> {
+        if (self.config.msb & BFH::EXTENDED_MODE) != 0 {
+            let (msb, lsb) = convert_temp_to_register_extended(temperature);
+            self.write_register(Register::T_LOW, lsb, msb)
+        }
+        else {
+            let (msb, lsb) = convert_temp_to_register_normal(temperature);
+            self.write_register(Register::T_LOW, lsb, msb)
+        }
+    }
+
     /// Reset the internal state of this driver to the default values.
     ///
     /// *Note:* This does not alter the state or configuration of the device.

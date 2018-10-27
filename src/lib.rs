@@ -11,6 +11,7 @@
 //! - Trigger a one-shot measurement.
 //! - Read whether the one-shot measurement result is ready.
 //! - Set the conversion rate.
+//! - Set the high/low temperature threshold.
 //!
 //! ## The devices
 //!
@@ -233,6 +234,7 @@ struct Register;
 impl Register {
     const TEMPERATURE : u8 = 0x00;
     const CONFIG      : u8 = 0x01;
+    const T_LOW       : u8 = 0x02;
     const T_HIGH      : u8 = 0x03;
 }
 
