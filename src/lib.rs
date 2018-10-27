@@ -208,6 +208,22 @@
 //! sensor.set_fault_queue(FaultQueue::_4).unwrap();
 //! # }
 //! ```
+//!
+//! ### Set the alert polarity
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate tmp1x2;
+//!
+//! use hal::I2cdev;
+//! use tmp1x2::{ Tmp1x2, SlaveAddr, AlertPolarity };
+//!
+//! # fn main() {
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
+//! sensor.set_alert_polarity(AlertPolarity::ActiveHigh).unwrap();
+//! # }
+//! ```
 
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
