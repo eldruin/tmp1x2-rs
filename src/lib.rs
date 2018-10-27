@@ -298,17 +298,18 @@ pub enum AlertPolarity {
 pub enum ThermostatMode {
     /// Comparator (default)
     ///
-    /// In this mode an alert is generated (set alert pin according to selected
-    /// polarity) when the temperature equals or exceeds the value set as
-    /// *high* temperature threshold and remains active until the temperature
-    /// falls below the value set as *low* temperature threshold.
+    /// In this mode an alert is generated (set alert pin and alert bit
+    /// according to selected active polarity) when the temperature equals or
+    /// exceeds the value set as *high* temperature threshold and remains
+    /// active until the temperature falls below the value set as *low*
+    /// temperature threshold.
     Comparator,
     /// Interrupt
     ///
-    /// In this mode an alert is generated (set alert pin according to selected
-    /// polarity) when the temperature exceeds the value set as *high*
-    /// temperature threshold or goes below the value set as *low* temperature
-    /// threshold.
+    /// In this mode an alert is generated (set alert pin and alert bit
+    /// according to selected active polarity) when the temperature exceeds the
+    /// value set as *high* temperature threshold or goes below the value set
+    /// as *low* temperature threshold.
     Interrupt
 }
 
