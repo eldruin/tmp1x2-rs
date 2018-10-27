@@ -2,7 +2,8 @@
 
 extern crate embedded_hal as hal;
 use hal::blocking::i2c;
-use super::{ Tmp1x2, Register, BitFlagsLow, BitFlagsHigh, Config, Error };
+use super::{ Tmp1x2, Register, BitFlagsLow, BitFlagsHigh, Config,
+             ConversionRate as CR, Error };
 
 
 impl<I2C, E> Tmp1x2<I2C>
@@ -52,6 +53,17 @@ where
             .write(self.address, &[Register::CONFIG, self.config.msb,
                                    self.config.lsb | BitFlagsLow::ONE_SHOT])
             .map_err(Error::I2C)
+    }
+
+    /// Set the conversion rate when in continuous conversion mode.
+    pub fn set_conversion_rate(&mut self, rate: CR) -> Result<(), Error<E>> {
+        let Config{ lsb, msb } = self.config;
+        match rate {
+            CR::_0_25Hz => self.write_config(lsb, msb & !BitFlagsHigh::CONV_RATE1 & !BitFlagsHigh::CONV_RATE0),
+            CR::_1Hz    => self.write_config(lsb, msb & !BitFlagsHigh::CONV_RATE1 |  BitFlagsHigh::CONV_RATE0),
+            CR::_4Hz    => self.write_config(lsb, msb |  BitFlagsHigh::CONV_RATE1 & !BitFlagsHigh::CONV_RATE0),
+            CR::_8Hz    => self.write_config(lsb, msb |  BitFlagsHigh::CONV_RATE1 |  BitFlagsHigh::CONV_RATE0),
+        }
     }
 
     fn write_config(&mut self, lsb: u8, msb: u8) -> Result<(), Error<E>> {

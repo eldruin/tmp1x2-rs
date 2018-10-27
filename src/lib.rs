@@ -10,6 +10,7 @@
 //! - Enable/disable the extended measurement mode.
 //! - Trigger a one-shot measurement.
 //! - Read whether the one-shot measurement result is ready.
+//! - Set the conversion rate.
 //!
 //! ## The devices
 //!
@@ -168,6 +169,19 @@ pub enum Error<E> {
     I2C(E),
 }
 
+/// Conversion rate for continuous conversion mode.
+#[derive(Debug, Clone)]
+pub enum ConversionRate {
+    /// 0.25Hz
+    _0_25Hz,
+    /// 1Hz
+    _1Hz,
+    /// 4 Hz (default)
+    _4Hz,
+    /// 8 Hz
+    _8Hz,
+}
+
 /// Possible slave addresses
 #[derive(Debug, Clone)]
 pub enum SlaveAddr {
@@ -218,6 +232,7 @@ struct BitFlagsHigh;
 impl BitFlagsHigh {
     const EXTENDED_MODE : u8 = 0b0001_0000;
     const ALERT         : u8 = 0b0010_0000;
+    const CONV_RATE0    : u8 = 0b0100_0000;
     const CONV_RATE1    : u8 = 0b1000_0000;
 }
 

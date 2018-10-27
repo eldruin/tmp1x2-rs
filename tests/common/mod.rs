@@ -28,6 +28,7 @@ pub struct BitFlagsHigh;
 impl BitFlagsHigh {
     pub const EXTENDED_MODE : u8 = 0b0001_0000;
     pub const ALERT         : u8 = 0b0010_0000;
+    pub const CONV_RATE0    : u8 = 0b0100_0000;
     pub const CONV_RATE1    : u8 = 0b1000_0000;
 }
 
