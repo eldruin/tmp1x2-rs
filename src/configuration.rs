@@ -72,7 +72,7 @@ where
     /// Set the high temperature threshold.
     ///
     /// The value provided will be capped to be in the interval
-    /// [-128.0, 127.9375] in normal mode and [-256.0, 255.875] in
+    /// `[-128.0, 127.9375]` in normal mode and `[-256.0, 255.875]` in
     /// extended mode.
     pub fn set_high_temperature_threshold(&mut self, temperature: f32) -> Result<(), Error<E>> {
         self.set_temperature_threshold(temperature, Register::T_HIGH)
@@ -81,7 +81,7 @@ where
     /// Set the low temperature threshold.
     ///
     /// The value provided will be capped to be in the interval
-    /// [-128.0, 127.9375] in normal mode and [-256.0, 255.875] in
+    /// `[-128.0, 127.9375]` in normal mode and `[-256.0, 255.875]` in
     /// extended mode.
     pub fn set_low_temperature_threshold(&mut self, temperature: f32) -> Result<(), Error<E>> {
         self.set_temperature_threshold(temperature, Register::T_LOW)

@@ -276,7 +276,7 @@ pub enum Error<E> {
     I2C(E),
 }
 
-/// Conversion rate for continuous conversion mode.
+/// Conversion rate for continuous conversion mode
 #[derive(Debug, Clone)]
 pub enum ConversionRate {
     /// 0.25Hz
@@ -421,7 +421,7 @@ impl<I2C, E> Tmp1x2<I2C>
 where
     I2C: i2c::Write<Error = E>
 {
-    /// Create new instance of the TMP1X2 device.
+    /// Create new instance of the TMP102 or TMP112x device.
     pub fn new(i2c: I2C, address: SlaveAddr) -> Self {
         Tmp1x2 {
             i2c,
