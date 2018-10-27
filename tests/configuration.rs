@@ -9,9 +9,9 @@ use common::{ DEVICE_ADDRESS, setup, Register, BitFlagsLow as BFL,
               DEFAULT_CONFIG_MSB as DEFAULT_MSB };
 
 
-fn get_write_expectation(config_lsb: u8, config_msb: u8) -> [I2cTransaction; 1] {
+fn get_write_expectation(register: u8, lsb: u8, msb: u8) -> [I2cTransaction; 1] {
     [
-        I2cTransaction::write(DEVICE_ADDRESS, vec![Register::CONFIG, config_msb, config_lsb])
+        I2cTransaction::write(DEVICE_ADDRESS, vec![register, msb, lsb])
     ]
 }
 
@@ -19,7 +19,7 @@ macro_rules! config_test {
     ($name:ident, $method:ident, $expected_lsb:expr, $expected_msb:expr) => {
         #[test]
         fn $name() {
-            let expectations = get_write_expectation($expected_lsb, $expected_msb);
+            let expectations = get_write_expectation(Register::CONFIG, $expected_lsb, $expected_msb);
             let mut dev = setup(&expectations);
             dev.$method().unwrap();
             dev.destroy().done();
@@ -39,7 +39,8 @@ macro_rules! config_value_test {
     ($name:ident, $method:ident, $value:expr, $expected_lsb:expr, $expected_msb:expr) => {
         #[test]
         fn $name() {
-            let expectations = get_write_expectation($expected_lsb,
+            let expectations = get_write_expectation(Register::CONFIG,
+                                                     $expected_lsb,
                                                      $expected_msb);
             let mut dev = setup(&expectations);
             dev.$method($value).unwrap();
