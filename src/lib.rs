@@ -171,6 +171,23 @@
 //! sensor.set_conversion_rate(ConversionRate::_1Hz).unwrap();
 //! # }
 //! ```
+//!
+//! ### Set the high and low temperature thresholds
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate tmp1x2;
+//!
+//! use hal::I2cdev;
+//! use tmp1x2::{ Tmp1x2, SlaveAddr, ConversionRate };
+//!
+//! # fn main() {
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
+//! sensor.set_low_temperature_threshold(-15.0).unwrap();
+//! sensor.set_high_temperature_threshold(60.0).unwrap();
+//! # }
+//! ```
 
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
