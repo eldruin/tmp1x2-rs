@@ -14,6 +14,7 @@ This driver allows you to:
 - Read whether the one-shot measurement result is ready.
 - Set the conversion rate.
 - Set the high/low temperature threshold.
+- Set the fault queue.
 
 ## The devices
 

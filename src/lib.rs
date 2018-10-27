@@ -12,6 +12,7 @@
 //! - Read whether the one-shot measurement result is ready.
 //! - Set the conversion rate.
 //! - Set the high/low temperature threshold.
+//! - Set the fault queue.
 //!
 //! ## The devices
 //!
@@ -216,6 +217,21 @@ pub enum ConversionRate {
     _8Hz,
 }
 
+/// Fault queue
+///
+/// Number of consecutive faults necessary to trigger an alert.
+#[derive(Debug, Clone)]
+pub enum FaultQueue {
+    /// 1 fault will trigger an alert
+    _1,
+    /// 2 consecutive faults will trigger an alert
+    _2,
+    /// 4 consecutive faults will trigger an alert
+    _4,
+    /// 6 consecutive faults will trigger an alert
+    _6,
+}
+
 /// Possible slave addresses
 #[derive(Debug, Clone)]
 pub enum SlaveAddr {
@@ -259,6 +275,8 @@ struct BitFlagsLow;
 
 impl BitFlagsLow {
     const SHUTDOWN        : u8 = 0b0000_0001;
+    const FAULT_QUEUE0    : u8 = 0b0000_1000;
+    const FAULT_QUEUE1    : u8 = 0b0001_0000;
     const RESOLUTION      : u8 = 0b0110_0000;
     const ONE_SHOT        : u8 = 0b1000_0000;
 }

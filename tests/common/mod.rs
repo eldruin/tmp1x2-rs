@@ -20,6 +20,8 @@ pub struct BitFlagsLow;
 #[allow(unused)]
 impl BitFlagsLow {
     pub const SHUTDOWN        : u8 = 0b0000_0001;
+    pub const FAULT_QUEUE0    : u8 = 0b0000_1000;
+    pub const FAULT_QUEUE1    : u8 = 0b0001_0000;
     pub const RESOLUTION      : u8 = 0b0110_0000;
     pub const ONE_SHOT        : u8 = 0b1000_0000;
 }

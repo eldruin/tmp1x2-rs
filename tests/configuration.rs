@@ -1,7 +1,7 @@
 extern crate tmp1x2;
 extern crate embedded_hal_mock as hal;
 use hal::i2c::{ Transaction as I2cTransaction };
-use tmp1x2::ConversionRate as CR;
+use tmp1x2::{ ConversionRate as CR, FaultQueue as FQ };
 
 mod common;
 use common::{ DEVICE_ADDRESS, setup, Register, BitFlagsLow as BFL,
@@ -53,6 +53,12 @@ config_value_test!(can_set_cr_0_25, set_conversion_rate, CR::_0_25Hz, DEFAULT_LS
 config_value_test!(can_set_cr_1,    set_conversion_rate, CR::_1Hz,    DEFAULT_LSB, DEFAULT_MSB & !BFH::CONV_RATE1 |  BFH::CONV_RATE0);
 config_value_test!(can_set_cr_4,    set_conversion_rate, CR::_4Hz,    DEFAULT_LSB, DEFAULT_MSB |  BFH::CONV_RATE1 & !BFH::CONV_RATE0);
 config_value_test!(can_set_cr_8,    set_conversion_rate, CR::_8Hz,    DEFAULT_LSB, DEFAULT_MSB |  BFH::CONV_RATE1 |  BFH::CONV_RATE0);
+
+config_value_test!(can_set_fq_1, set_fault_queue, FQ::_1, DEFAULT_LSB & !BFL::FAULT_QUEUE1 & !BFL::FAULT_QUEUE0, DEFAULT_MSB);
+config_value_test!(can_set_fq_2, set_fault_queue, FQ::_2, DEFAULT_LSB & !BFL::FAULT_QUEUE1 |  BFL::FAULT_QUEUE0, DEFAULT_MSB);
+config_value_test!(can_set_fq_4, set_fault_queue, FQ::_4, DEFAULT_LSB |  BFL::FAULT_QUEUE1 & !BFL::FAULT_QUEUE0, DEFAULT_MSB);
+config_value_test!(can_set_fq_6, set_fault_queue, FQ::_6, DEFAULT_LSB |  BFL::FAULT_QUEUE1 |  BFL::FAULT_QUEUE0, DEFAULT_MSB);
+
 
 macro_rules! set_value_test {
     ($name:ident, $method:ident, $value:expr, $register:expr, $expected_lsb:expr, $expected_msb:expr) => {

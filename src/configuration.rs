@@ -3,7 +3,7 @@
 extern crate embedded_hal as hal;
 use hal::blocking::i2c;
 use super::{ Tmp1x2, Register, BitFlagsLow as BFL, BitFlagsHigh as BFH, Config,
-             ConversionRate as CR, Error };
+             ConversionRate as CR, FaultQueue, Error };
 use super::conversion::{ convert_temp_to_register_normal,
                          convert_temp_to_register_extended };
 
@@ -94,6 +94,19 @@ where
         else {
             let (msb, lsb) = convert_temp_to_register_normal(temperature);
             self.write_register(register, lsb, msb)
+        }
+    }
+
+    /// Set the fault queue.
+    ///
+    /// Set the number of consecutive faults that will trigger an alert.
+    pub fn set_fault_queue(&mut self, fq: FaultQueue) -> Result<(), Error<E>> {
+        let Config{ lsb, msb } = self.config;
+        match fq {
+            FaultQueue::_1 => self.write_config(lsb & !BFL::FAULT_QUEUE1 & !BFL::FAULT_QUEUE0, msb),
+            FaultQueue::_2 => self.write_config(lsb & !BFL::FAULT_QUEUE1 |  BFL::FAULT_QUEUE0, msb),
+            FaultQueue::_4 => self.write_config(lsb |  BFL::FAULT_QUEUE1 & !BFL::FAULT_QUEUE0, msb),
+            FaultQueue::_6 => self.write_config(lsb |  BFL::FAULT_QUEUE1 |  BFL::FAULT_QUEUE0, msb),
         }
     }
 
