@@ -16,6 +16,7 @@ This driver allows you to:
 - Set the high/low temperature threshold.
 - Set the fault queue.
 - Set the alert polarity.
+- Set the thermostat mode.
 
 ## The devices
 

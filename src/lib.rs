@@ -14,6 +14,7 @@
 //! - Set the high/low temperature threshold.
 //! - Set the fault queue.
 //! - Set the alert polarity.
+//! - Set the thermostat mode.
 //!
 //! ## The devices
 //!
@@ -276,6 +277,25 @@ pub enum AlertPolarity {
     ActiveHigh
 }
 
+/// Thermostat mode
+#[derive(Debug, Clone)]
+pub enum ThermostatMode {
+    /// Comparator (default)
+    ///
+    /// In this mode an alert is generated (set alert pin according to selected
+    /// polarity) when the temperature equals or exceeds the value set as
+    /// *high* temperature threshold and remains active until the temperature
+    /// falls below the value set as *low* temperature threshold.
+    Comparator,
+    /// Interrupt
+    ///
+    /// In this mode an alert is generated (set alert pin according to selected
+    /// polarity) when the temperature exceeds the value set as *high*
+    /// temperature threshold or goes below the value set as *low* temperature
+    /// threshold.
+    Interrupt
+}
+
 /// Possible slave addresses
 #[derive(Debug, Clone)]
 pub enum SlaveAddr {
@@ -319,6 +339,7 @@ struct BitFlagsLow;
 
 impl BitFlagsLow {
     const SHUTDOWN        : u8 = 0b0000_0001;
+    const THERMOSTAT      : u8 = 0b0000_0010;
     const ALERT_POLARITY  : u8 = 0b0000_0100;
     const FAULT_QUEUE0    : u8 = 0b0000_1000;
     const FAULT_QUEUE1    : u8 = 0b0001_0000;

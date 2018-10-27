@@ -20,6 +20,7 @@ pub struct BitFlagsLow;
 #[allow(unused)]
 impl BitFlagsLow {
     pub const SHUTDOWN        : u8 = 0b0000_0001;
+    pub const THERMOSTAT      : u8 = 0b0000_0010;
     pub const ALERT_POLARITY  : u8 = 0b0000_0100;
     pub const FAULT_QUEUE0    : u8 = 0b0000_1000;
     pub const FAULT_QUEUE1    : u8 = 0b0001_0000;

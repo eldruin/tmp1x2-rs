@@ -1,7 +1,8 @@
 extern crate tmp1x2;
 extern crate embedded_hal_mock as hal;
 use hal::i2c::{ Transaction as I2cTransaction };
-use tmp1x2::{ ConversionRate as CR, FaultQueue as FQ, AlertPolarity as AP };
+use tmp1x2::{ ConversionRate as CR, FaultQueue as FQ, AlertPolarity as AP,
+              ThermostatMode as TM };
 
 mod common;
 use common::{ DEVICE_ADDRESS, setup, Register, BitFlagsLow as BFL,
@@ -61,6 +62,9 @@ config_value_test!(can_set_fq_6, set_fault_queue, FQ::_6, DEFAULT_LSB |  BFL::FA
 
 config_value_test!(can_set_ap_low,  set_alert_polarity, AP::ActiveLow,  DEFAULT_LSB & !BFL::ALERT_POLARITY, DEFAULT_MSB);
 config_value_test!(can_set_ap_high, set_alert_polarity, AP::ActiveHigh, DEFAULT_LSB |  BFL::ALERT_POLARITY, DEFAULT_MSB);
+
+config_value_test!(can_set_tm_comp, set_thermostat_mode, TM::Comparator, DEFAULT_LSB & !BFL::THERMOSTAT, DEFAULT_MSB);
+config_value_test!(can_set_tm_int,  set_thermostat_mode, TM::Interrupt,  DEFAULT_LSB |  BFL::THERMOSTAT, DEFAULT_MSB);
 
 
 macro_rules! set_value_test {

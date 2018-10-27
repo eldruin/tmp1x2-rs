@@ -3,7 +3,8 @@
 extern crate embedded_hal as hal;
 use hal::blocking::i2c;
 use super::{ Tmp1x2, Register, BitFlagsLow as BFL, BitFlagsHigh as BFH, Config,
-             ConversionRate as CR, FaultQueue, AlertPolarity, Error };
+             ConversionRate as CR, FaultQueue, AlertPolarity, ThermostatMode,
+             Error };
 use super::conversion::{ convert_temp_to_register_normal,
                          convert_temp_to_register_extended };
 
@@ -116,6 +117,15 @@ where
         match polarity {
             AlertPolarity::ActiveLow  => self.write_config(lsb & !BFL::ALERT_POLARITY, msb),
             AlertPolarity::ActiveHigh => self.write_config(lsb |  BFL::ALERT_POLARITY, msb),
+        }
+    }
+
+    /// Set the thermostat mode.
+    pub fn set_thermostat_mode(&mut self, mode: ThermostatMode) -> Result<(), Error<E>> {
+        let Config{ lsb, msb } = self.config;
+        match mode {
+            ThermostatMode::Comparator => self.write_config(lsb & !BFL::THERMOSTAT, msb),
+            ThermostatMode::Interrupt  => self.write_config(lsb |  BFL::THERMOSTAT, msb),
         }
     }
 
