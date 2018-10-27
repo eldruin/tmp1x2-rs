@@ -4,6 +4,8 @@ extern crate embedded_hal as hal;
 use hal::blocking::i2c;
 use super::{ Tmp1x2, Register, BitFlagsLow as BFL, BitFlagsHigh as BFH, Config,
              ConversionRate as CR, Error };
+use super::conversion::{ convert_temp_to_register_normal,
+                         convert_temp_to_register_extended };
 
 
 impl<I2C, E> Tmp1x2<I2C>
@@ -66,6 +68,22 @@ where
         }
     }
 
+    /// Set the high temperature threshold.
+    ///
+    /// The value provided will be capped to be in the interval
+    /// [-128.0, 127.9375] in normal mode and [-256.0, 255.875] in
+    /// extended mode.
+    pub fn set_high_temperature_threshold(&mut self, temperature: f32) -> Result<(), Error<E>> {
+        if (self.config.msb & BFH::EXTENDED_MODE) != 0 {
+            let (msb, lsb) = convert_temp_to_register_extended(temperature);
+            self.write_register(Register::T_HIGH, lsb, msb)
+        }
+        else {
+            let (msb, lsb) = convert_temp_to_register_normal(temperature);
+            self.write_register(Register::T_HIGH, lsb, msb)
+        }
+    }
+
     /// Reset the internal state of this driver to the default values.
     ///
     /// *Note:* This does not alter the state or configuration of the device.
@@ -82,10 +100,14 @@ where
     }
 
     fn write_config(&mut self, lsb: u8, msb: u8) -> Result<(), Error<E>> {
-        self.i2c
-            .write(self.address, &[Register::CONFIG, msb, lsb])
-            .map_err(Error::I2C)?;
+        self.write_register(Register::CONFIG, lsb, msb)?;
         self.config = Config { lsb, msb };
         Ok(())
+    }
+
+    fn write_register(&mut self, register: u8, lsb: u8, msb: u8) -> Result<(), Error<E>> {
+        self.i2c
+            .write(self.address, &[register, msb, lsb])
+            .map_err(Error::I2C)
     }
 }

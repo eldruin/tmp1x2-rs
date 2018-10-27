@@ -53,3 +53,20 @@ config_value_test!(can_set_cr_0_25, set_conversion_rate, CR::_0_25Hz, DEFAULT_LS
 config_value_test!(can_set_cr_1,    set_conversion_rate, CR::_1Hz,    DEFAULT_LSB, DEFAULT_MSB & !BFH::CONV_RATE1 |  BFH::CONV_RATE0);
 config_value_test!(can_set_cr_4,    set_conversion_rate, CR::_4Hz,    DEFAULT_LSB, DEFAULT_MSB |  BFH::CONV_RATE1 & !BFH::CONV_RATE0);
 config_value_test!(can_set_cr_8,    set_conversion_rate, CR::_8Hz,    DEFAULT_LSB, DEFAULT_MSB |  BFH::CONV_RATE1 |  BFH::CONV_RATE0);
+
+macro_rules! set_value_test {
+    ($name:ident, $method:ident, $value:expr, $register:expr, $expected_lsb:expr, $expected_msb:expr) => {
+        #[test]
+        fn $name() {
+            let expectations = get_write_expectation($register,
+                                                     $expected_lsb,
+                                                     $expected_msb);
+            let mut dev = setup(&expectations);
+            dev.$method($value).unwrap();
+            dev.destroy().done();
+        }
+    };
+}
+
+set_value_test!(can_set_high_temp_th_m0_25, set_high_temperature_threshold, -0.25,  Register::T_HIGH, 0b1100_0000, 0b1111_1111);
+set_value_test!(can_set_high_temp_th_127, set_high_temperature_threshold, 127.9375, Register::T_HIGH, 0b1111_0000, 0b0111_1111);
