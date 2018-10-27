@@ -3,7 +3,7 @@
 extern crate embedded_hal as hal;
 use hal::blocking::i2c;
 use super::{ Tmp1x2, Register, BitFlagsLow as BFL, BitFlagsHigh as BFH, Config,
-             ConversionRate as CR, FaultQueue, Error };
+             ConversionRate as CR, FaultQueue, AlertPolarity, Error };
 use super::conversion::{ convert_temp_to_register_normal,
                          convert_temp_to_register_extended };
 
@@ -107,6 +107,15 @@ where
             FaultQueue::_2 => self.write_config(lsb & !BFL::FAULT_QUEUE1 |  BFL::FAULT_QUEUE0, msb),
             FaultQueue::_4 => self.write_config(lsb |  BFL::FAULT_QUEUE1 & !BFL::FAULT_QUEUE0, msb),
             FaultQueue::_6 => self.write_config(lsb |  BFL::FAULT_QUEUE1 |  BFL::FAULT_QUEUE0, msb),
+        }
+    }
+
+    /// Set the alert polarity.
+    pub fn set_alert_polarity(&mut self, polarity: AlertPolarity) -> Result<(), Error<E>> {
+        let Config{ lsb, msb } = self.config;
+        match polarity {
+            AlertPolarity::ActiveLow  => self.write_config(lsb & !BFL::ALERT_POLARITY, msb),
+            AlertPolarity::ActiveHigh => self.write_config(lsb |  BFL::ALERT_POLARITY, msb),
         }
     }
 

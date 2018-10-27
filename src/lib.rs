@@ -13,6 +13,7 @@
 //! - Set the conversion rate.
 //! - Set the high/low temperature threshold.
 //! - Set the fault queue.
+//! - Set the alert polarity.
 //!
 //! ## The devices
 //!
@@ -240,7 +241,7 @@ pub enum ConversionRate {
 /// Number of consecutive faults necessary to trigger an alert.
 #[derive(Debug, Clone)]
 pub enum FaultQueue {
-    /// 1 fault will trigger an alert
+    /// 1 fault will trigger an alert (default)
     _1,
     /// 2 consecutive faults will trigger an alert
     _2,
@@ -248,6 +249,15 @@ pub enum FaultQueue {
     _4,
     /// 6 consecutive faults will trigger an alert
     _6,
+}
+
+/// Alert polarity
+#[derive(Debug, Clone)]
+pub enum AlertPolarity {
+    /// Active low (default)
+    ActiveLow,
+    /// Active high
+    ActiveHigh
 }
 
 /// Possible slave addresses
@@ -293,6 +303,7 @@ struct BitFlagsLow;
 
 impl BitFlagsLow {
     const SHUTDOWN        : u8 = 0b0000_0001;
+    const ALERT_POLARITY  : u8 = 0b0000_0100;
     const FAULT_QUEUE0    : u8 = 0b0000_1000;
     const FAULT_QUEUE1    : u8 = 0b0001_0000;
     const RESOLUTION      : u8 = 0b0110_0000;

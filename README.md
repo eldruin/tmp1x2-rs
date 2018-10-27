@@ -15,6 +15,7 @@ This driver allows you to:
 - Set the conversion rate.
 - Set the high/low temperature threshold.
 - Set the fault queue.
+- Set the alert polarity.
 
 ## The devices
 
