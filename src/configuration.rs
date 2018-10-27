@@ -2,7 +2,7 @@
 
 extern crate embedded_hal as hal;
 use hal::blocking::i2c;
-use super::{ Tmp1x2, Register, BitFlagsLow, BitFlagsHigh, Config,
+use super::{ Tmp1x2, Register, BitFlagsLow as BFL, BitFlagsHigh as BFH, Config,
              ConversionRate as CR, Error };
 
 
@@ -13,13 +13,13 @@ where
     /// Enable the sensor.
     pub fn enable(&mut self) -> Result<(), Error<E>> {
         let Config{ lsb, msb } = self.config;
-        self.write_config(lsb & !BitFlagsLow::SHUTDOWN, msb)
+        self.write_config(lsb & !BFL::SHUTDOWN, msb)
     }
 
     /// Disable the sensor (shutdown).
     pub fn disable(&mut self) -> Result<(), Error<E>> {
         let Config{ lsb, msb } = self.config;
-        self.write_config(lsb | BitFlagsLow::SHUTDOWN, msb)
+        self.write_config(lsb | BFL::SHUTDOWN, msb)
     }
 
     /// Enable the extended measurement mode.
@@ -27,7 +27,7 @@ where
     /// This allows measurement of temperatures above 128°C.
     pub fn enable_extended_mode(&mut self) -> Result<(), Error<E>> {
         let Config{ lsb, msb } = self.config;
-        self.write_config(lsb, msb | BitFlagsHigh::EXTENDED_MODE)
+        self.write_config(lsb, msb | BFH::EXTENDED_MODE)
     }
 
     /// Disable the extended measurement mode.
@@ -36,7 +36,7 @@ where
     /// temperatures above 128°C.
     pub fn disable_extended_mode(&mut self) -> Result<(), Error<E>> {
         let Config{ lsb, msb } = self.config;
-        self.write_config(lsb, msb & !BitFlagsHigh::EXTENDED_MODE)
+        self.write_config(lsb, msb & !BFH::EXTENDED_MODE)
     }
 
     /// Trigger a one-shot measurement when in shutdown mode (disabled).
@@ -51,7 +51,7 @@ where
         // This bit is not stored
         self.i2c
             .write(self.address, &[Register::CONFIG, self.config.msb,
-                                   self.config.lsb | BitFlagsLow::ONE_SHOT])
+                                   self.config.lsb | BFL::ONE_SHOT])
             .map_err(Error::I2C)
     }
 
@@ -59,10 +59,10 @@ where
     pub fn set_conversion_rate(&mut self, rate: CR) -> Result<(), Error<E>> {
         let Config{ lsb, msb } = self.config;
         match rate {
-            CR::_0_25Hz => self.write_config(lsb, msb & !BitFlagsHigh::CONV_RATE1 & !BitFlagsHigh::CONV_RATE0),
-            CR::_1Hz    => self.write_config(lsb, msb & !BitFlagsHigh::CONV_RATE1 |  BitFlagsHigh::CONV_RATE0),
-            CR::_4Hz    => self.write_config(lsb, msb |  BitFlagsHigh::CONV_RATE1 & !BitFlagsHigh::CONV_RATE0),
-            CR::_8Hz    => self.write_config(lsb, msb |  BitFlagsHigh::CONV_RATE1 |  BitFlagsHigh::CONV_RATE0),
+            CR::_0_25Hz => self.write_config(lsb, msb & !BFH::CONV_RATE1 & !BFH::CONV_RATE0),
+            CR::_1Hz    => self.write_config(lsb, msb & !BFH::CONV_RATE1 |  BFH::CONV_RATE0),
+            CR::_4Hz    => self.write_config(lsb, msb |  BFH::CONV_RATE1 & !BFH::CONV_RATE0),
+            CR::_8Hz    => self.write_config(lsb, msb |  BFH::CONV_RATE1 |  BFH::CONV_RATE0),
         }
     }
 
