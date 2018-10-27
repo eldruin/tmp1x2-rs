@@ -15,6 +15,7 @@
 //! - Set the fault queue.
 //! - Set the alert polarity.
 //! - Set the thermostat mode.
+//! - Read whether a comparator mode alert is active.
 //!
 //! ## The devices
 //!

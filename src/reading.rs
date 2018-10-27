@@ -2,7 +2,7 @@
 
 extern crate embedded_hal as hal;
 use hal::blocking::i2c;
-use super::{ Tmp1x2, Register, BitFlagsLow, Error };
+use super::{ Tmp1x2, Register, BitFlagsLow, BitFlagsHigh, Error };
 
 use conversion::convert_temp_from_register;
 
@@ -28,5 +28,24 @@ where
             .write_read(self.address, &[Register::CONFIG], &mut data)
             .map_err(Error::I2C)?;
         Ok((data[1] & BitFlagsLow::ONE_SHOT) != 0)
+    }
+
+    /// Read whether an alert is active as defined by the comparator mode.
+    ///
+    /// *NOTE*: This ignores the thermostat mode setting and always corresponds
+    /// to the activation status as defined by the comparator mode.
+    ///
+    /// This method takes into account the alert polarity selected.
+    ///
+    /// See also: [ThermostatMode](enum.ThermostatMode.html),
+    /// [AlertPolarity](enum.AlertPolarity.html).
+    pub fn is_comparator_mode_alert_active(&mut self) -> Result<bool, Error<E>> {
+        let mut data = [0; 2];
+        self.i2c
+            .write_read(self.address, &[Register::CONFIG], &mut data)
+            .map_err(Error::I2C)?;
+        let is_alert_polarity_high = (data[1] & BitFlagsLow::ALERT_POLARITY) != 0;
+        let alert_status = (data[0] & BitFlagsHigh::ALERT) != 0;
+        Ok(is_alert_polarity_high == alert_status)
     }
 }
