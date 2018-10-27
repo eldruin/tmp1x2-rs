@@ -189,6 +189,24 @@
 //! sensor.set_high_temperature_threshold(60.0).unwrap();
 //! # }
 //! ```
+//!
+//! ### Set the fault queue
+//!
+//! This sets the number of consecutive faults that will trigger an alert.
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate tmp1x2;
+//!
+//! use hal::I2cdev;
+//! use tmp1x2::{ Tmp1x2, SlaveAddr, FaultQueue };
+//!
+//! # fn main() {
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
+//! sensor.set_fault_queue(FaultQueue::_4).unwrap();
+//! # }
+//! ```
 
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
