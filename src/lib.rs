@@ -242,6 +242,25 @@
 //! sensor.set_thermostat_mode(ThermostatMode::Interrupt).unwrap();
 //! # }
 //! ```
+//!
+//! ### Check whether an alert is active as defined by the comparator mode
+//!
+//! Note that this ignores the thermostat mode setting and always refers to
+//! the status as defined by the comparator mode.
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate tmp1x2;
+//!
+//! use hal::I2cdev;
+//! use tmp1x2::{ Tmp1x2, SlaveAddr };
+//!
+//! # fn main() {
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
+//! let alert = sensor.is_comparator_mode_alert_active().unwrap();
+//! # }
+//! ```
 
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
@@ -284,7 +303,7 @@ pub enum FaultQueue {
     /// 6 consecutive faults will trigger an alert
     _6,
 }
-
+        
 /// Alert polarity
 #[derive(Debug, Clone)]
 pub enum AlertPolarity {
