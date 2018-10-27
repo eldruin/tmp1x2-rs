@@ -74,14 +74,7 @@ where
     /// [-128.0, 127.9375] in normal mode and [-256.0, 255.875] in
     /// extended mode.
     pub fn set_high_temperature_threshold(&mut self, temperature: f32) -> Result<(), Error<E>> {
-        if (self.config.msb & BFH::EXTENDED_MODE) != 0 {
-            let (msb, lsb) = convert_temp_to_register_extended(temperature);
-            self.write_register(Register::T_HIGH, lsb, msb)
-        }
-        else {
-            let (msb, lsb) = convert_temp_to_register_normal(temperature);
-            self.write_register(Register::T_HIGH, lsb, msb)
-        }
+        self.set_temperature_threshold(temperature, Register::T_HIGH)
     }
 
     /// Set the low temperature threshold.
@@ -90,13 +83,17 @@ where
     /// [-128.0, 127.9375] in normal mode and [-256.0, 255.875] in
     /// extended mode.
     pub fn set_low_temperature_threshold(&mut self, temperature: f32) -> Result<(), Error<E>> {
+        self.set_temperature_threshold(temperature, Register::T_LOW)
+    }
+
+    fn set_temperature_threshold(&mut self, temperature: f32, register: u8) -> Result<(), Error<E>> {
         if (self.config.msb & BFH::EXTENDED_MODE) != 0 {
             let (msb, lsb) = convert_temp_to_register_extended(temperature);
-            self.write_register(Register::T_LOW, lsb, msb)
+            self.write_register(register, lsb, msb)
         }
         else {
             let (msb, lsb) = convert_temp_to_register_normal(temperature);
-            self.write_register(Register::T_LOW, lsb, msb)
+            self.write_register(register, lsb, msb)
         }
     }
 
