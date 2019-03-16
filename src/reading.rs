@@ -1,5 +1,3 @@
-#![deny(unsafe_code)]
-
 extern crate embedded_hal as hal;
 use super::{BitFlagsHigh, BitFlagsLow, Error, Register, Tmp1x2};
 use hal::blocking::i2c;
