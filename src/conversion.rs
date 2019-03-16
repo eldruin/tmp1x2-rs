@@ -1,3 +1,4 @@
+// functions to convert temperature to and from register values
 
 pub fn convert_temp_from_register(msb: u8, lsb: u8) -> f32 {
     let mut sign = (u16::from(msb & 0b1000_0000)) << 8;
