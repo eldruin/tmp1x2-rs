@@ -1,14 +1,14 @@
 #![deny(unsafe_code)]
 
 extern crate embedded_hal as hal;
+use super::{BitFlagsHigh, BitFlagsLow, Error, Register, Tmp1x2};
 use hal::blocking::i2c;
-use super::{ Tmp1x2, Register, BitFlagsLow, BitFlagsHigh, Error };
 
 use conversion::convert_temp_from_register;
 
 impl<I2C, E> Tmp1x2<I2C>
 where
-    I2C: i2c::WriteRead<Error = E>
+    I2C: i2c::WriteRead<Error = E>,
 {
     /// Read the temperature from the sensor.
     pub fn read_temperature(&mut self) -> Result<f32, Error<E>> {

@@ -21,7 +21,7 @@
 //!
 //! This driver is compatible with both the TMP102 device as well as the TMP112
 //! family of devices, including TMP112A, TMP112B and TMP112N.
-//! 
+//!
 //! ### TMP102
 //! The TMP102 device is a digital temperature sensor ideal for NTC/PTC
 //! thermistor replacement where high accuracy is required. The device offers
@@ -303,14 +303,14 @@ pub enum FaultQueue {
     /// 6 consecutive faults will trigger an alert
     _6,
 }
-        
+
 /// Alert polarity
 #[derive(Debug, Clone)]
 pub enum AlertPolarity {
     /// Active low (default)
     ActiveLow,
     /// Active high
-    ActiveHigh
+    ActiveHigh,
 }
 
 /// Thermostat mode
@@ -330,7 +330,7 @@ pub enum ThermostatMode {
     /// according to selected active polarity) when the temperature exceeds the
     /// value set as *high* temperature threshold or goes below the value set
     /// as *low* temperature threshold.
-    Interrupt
+    Interrupt,
 }
 
 /// Possible slave addresses
@@ -339,7 +339,7 @@ pub enum SlaveAddr {
     /// Default slave address
     Default,
     /// Alternative slave address providing bit values for A1 and A0
-    Alternative(bool, bool)
+    Alternative(bool, bool),
 }
 
 impl Default for SlaveAddr {
@@ -353,56 +353,55 @@ impl SlaveAddr {
     fn addr(self, default: u8) -> u8 {
         match self {
             SlaveAddr::Default => default,
-            SlaveAddr::Alternative(a1, a0) => default           |
-                                              ((a1 as u8) << 1) |
-                                                a0 as u8
+            SlaveAddr::Alternative(a1, a0) => default | ((a1 as u8) << 1) | a0 as u8,
         }
     }
 }
-
 
 const DEVICE_BASE_ADDRESS: u8 = 0b100_1000;
 
 struct Register;
 
 impl Register {
-    const TEMPERATURE : u8 = 0x00;
-    const CONFIG      : u8 = 0x01;
-    const T_LOW       : u8 = 0x02;
-    const T_HIGH      : u8 = 0x03;
+    const TEMPERATURE: u8 = 0x00;
+    const CONFIG: u8 = 0x01;
+    const T_LOW: u8 = 0x02;
+    const T_HIGH: u8 = 0x03;
 }
 
 struct BitFlagsLow;
 
 impl BitFlagsLow {
-    const SHUTDOWN        : u8 = 0b0000_0001;
-    const THERMOSTAT      : u8 = 0b0000_0010;
-    const ALERT_POLARITY  : u8 = 0b0000_0100;
-    const FAULT_QUEUE0    : u8 = 0b0000_1000;
-    const FAULT_QUEUE1    : u8 = 0b0001_0000;
-    const RESOLUTION      : u8 = 0b0110_0000;
-    const ONE_SHOT        : u8 = 0b1000_0000;
+    const SHUTDOWN: u8 = 0b0000_0001;
+    const THERMOSTAT: u8 = 0b0000_0010;
+    const ALERT_POLARITY: u8 = 0b0000_0100;
+    const FAULT_QUEUE0: u8 = 0b0000_1000;
+    const FAULT_QUEUE1: u8 = 0b0001_0000;
+    const RESOLUTION: u8 = 0b0110_0000;
+    const ONE_SHOT: u8 = 0b1000_0000;
 }
 
 struct BitFlagsHigh;
 
 impl BitFlagsHigh {
-    const EXTENDED_MODE : u8 = 0b0001_0000;
-    const ALERT         : u8 = 0b0010_0000;
-    const CONV_RATE0    : u8 = 0b0100_0000;
-    const CONV_RATE1    : u8 = 0b1000_0000;
+    const EXTENDED_MODE: u8 = 0b0001_0000;
+    const ALERT: u8 = 0b0010_0000;
+    const CONV_RATE0: u8 = 0b0100_0000;
+    const CONV_RATE1: u8 = 0b1000_0000;
 }
 
 #[derive(Debug, Clone)]
 struct Config {
     lsb: u8,
-    msb: u8
+    msb: u8,
 }
 
 impl Default for Config {
     fn default() -> Self {
-        Config { lsb: BitFlagsLow::RESOLUTION,
-                 msb: BitFlagsHigh::ALERT | BitFlagsHigh::CONV_RATE1 }
+        Config {
+            lsb: BitFlagsLow::RESOLUTION,
+            msb: BitFlagsHigh::ALERT | BitFlagsHigh::CONV_RATE1,
+        }
     }
 }
 
@@ -419,14 +418,14 @@ pub struct Tmp1x2<I2C> {
 
 impl<I2C, E> Tmp1x2<I2C>
 where
-    I2C: i2c::Write<Error = E>
+    I2C: i2c::Write<Error = E>,
 {
     /// Create new instance of the TMP102 or TMP112x device.
     pub fn new(i2c: I2C, address: SlaveAddr) -> Self {
         Tmp1x2 {
             i2c,
             address: address.addr(DEVICE_BASE_ADDRESS),
-            config: Config::default()
+            config: Config::default(),
         }
     }
 
@@ -443,20 +442,33 @@ mod reading;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use DEVICE_BASE_ADDRESS as BASE_ADDR;
     extern crate embedded_hal_mock as hal;
 
     #[test]
     fn can_get_default_address() {
         let addr = SlaveAddr::default();
-        assert_eq!(DEVICE_BASE_ADDRESS, addr.addr(DEVICE_BASE_ADDRESS));
+        assert_eq!(BASE_ADDR, addr.addr(BASE_ADDR));
     }
 
     #[test]
     fn can_generate_alternative_addresses() {
-        assert_eq!(0b100_1000, SlaveAddr::Alternative(false, false).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b100_1001, SlaveAddr::Alternative(false,  true).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b100_1010, SlaveAddr::Alternative( true, false).addr(DEVICE_BASE_ADDRESS));
-        assert_eq!(0b100_1011, SlaveAddr::Alternative( true,  true).addr(DEVICE_BASE_ADDRESS));
+        assert_eq!(
+            0b100_1000,
+            SlaveAddr::Alternative(false, false).addr(BASE_ADDR)
+        );
+        assert_eq!(
+            0b100_1001,
+            SlaveAddr::Alternative(false, true).addr(BASE_ADDR)
+        );
+        assert_eq!(
+            0b100_1010,
+            SlaveAddr::Alternative(true, false).addr(BASE_ADDR)
+        );
+        assert_eq!(
+            0b100_1011,
+            SlaveAddr::Alternative(true, true).addr(BASE_ADDR)
+        );
     }
 
     #[test]
