@@ -1,24 +1,24 @@
 #![deny(unsafe_code)]
 
 pub fn convert_temp_from_register(msb: u8, lsb: u8) -> f32 {
-    let mut sign = ((msb & 0b1000_0000) as u16) << 8;
+    let mut sign = (u16::from(msb & 0b1000_0000)) << 8;
     let extended_mode = (lsb & 1) != 0;
     if extended_mode {
         if sign != 0 {
             sign |= 0b1111_0000 << 8;
         }
-        let msb = (msb & 0b0111_1111) as u16;
-        let value = sign | (msb << 5) | (lsb >> 3) as u16;
+        let msb = u16::from(msb & 0b0111_1111);
+        let value = sign | (msb << 5) | u16::from(lsb >> 3);
         // the value is stored as two's complement
-        (value as i16) as f32 * 0.0625
+        f32::from(value as i16) * 0.0625
     } else {
         if sign != 0 {
             sign |= 0b1111_1000 << 8;
         }
-        let msb = (msb & 0b0111_1111) as u16;
-        let value = sign | (msb << 4) | (lsb >> 4) as u16;
+        let msb = u16::from(msb & 0b0111_1111);
+        let value = sign | (msb << 4) | u16::from(lsb >> 4);
         // the value is stored as two's complement
-        (value as i16) as f32 * 0.0625
+        f32::from(value as i16) * 0.0625
     }
 }
 
