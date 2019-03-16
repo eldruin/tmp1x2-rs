@@ -12,16 +12,17 @@ homepage = "https://github.com/eldruin/tmp1x2-rs"
 documentation = "https://docs.rs/tmp1x2"
 include = [
     "**/*.rs",
-    "Cargo.toml",
-    "README.md",
-    "CHANGELOG.md",
-    "LICENSE-MIT",
-    "LICENSE-APACHE",
+    "/Cargo.toml",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/LICENSE-MIT",
+    "/LICENSE-APACHE",
 ]
 
-[badges.travis-ci]
-branch = "master"
-repository = "eldruin/tmp1x2-rs"
+[badges]
+travis-ci = { repository = "eldruin/tmp1x2-rs", branch = "master" }
+coveralls = { repository = "eldruin/tmp1x2-rs", branch = "master", service = "github" }
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 embedded-hal = "0.2"

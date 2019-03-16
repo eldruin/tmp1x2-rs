@@ -1,4 +1,10 @@
-# Rust TMP102 and TMP112 Temperature Sensor Driver [![crates.io](https://img.shields.io/crates/v/tmp1x2.svg)](https://crates.io/crates/tmp1x2) [![Docs](https://docs.rs/tmp1x2/badge.svg)](https://docs.rs/tmp1x2) [![Build Status](https://travis-ci.org/eldruin/tmp1x2-rs.svg?branch=master)](https://travis-ci.org/eldruin/tmp1x2-rs)
+# Rust TMP102 and TMP112 Temperature Sensor Driver
+
+[![crates.io](https://img.shields.io/crates/v/tmp1x2.svg)](https://crates.io/crates/tmp1x2)
+[![Docs](https://docs.rs/tmp1x2/badge.svg)](https://docs.rs/tmp1x2)
+[![Build Status](https://travis-ci.org/eldruin/tmp1x2-rs.svg?branch=master)](https://travis-ci.org/eldruin/tmp1x2-rs)
+[![Coverage Status](https://coveralls.io/repos/github/eldruin/tmp1x2-rs/badge.svg?branch=master)](https://coveralls.io/github/eldruin/tmp1x2-rs?branch=master)
+![Maintenance Intention](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
 
 This is a platform agnostic Rust driver for the TMP102 and TMP112
 high-accuracy, low-power, digital temperature sensors, based on the
