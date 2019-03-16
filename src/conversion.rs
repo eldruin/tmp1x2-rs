@@ -108,6 +108,14 @@ mod tests {
     }
 
     #[test]
+    fn values_are_clamped() {
+        assert_eq!((0b0111_1111, 0b1111_0000), convert_to_reg(129.0));
+        assert_eq!((0b1000_0000, 0b0000_0000), convert_to_reg(-129.0));
+        assert_eq!((0b0111_1111, 0b1111_0000), convert_to_reg_ext(256.0));
+        assert_eq!((0b1000_0000, 0b0000_0000), convert_to_reg_ext(-257.0));
+    }
+
+    #[test]
     fn can_convert_temperature_to_register_normal_mode() {
         assert_eq!((0b0111_1111, 0b1111_0000), convert_to_reg(128.0));
         assert_eq!((0b0111_1111, 0b1111_0000), convert_to_reg(127.9375));
@@ -122,7 +130,6 @@ mod tests {
         assert_eq!((0b1110_0111, 0b0000_0000), convert_to_reg(-25.0));
         assert_eq!((0b1100_1001, 0b0000_0000), convert_to_reg(-55.0));
         assert_eq!((0b1000_0000, 0b0000_0000), convert_to_reg(-128.0));
-        assert_eq!((0b1000_0000, 0b0000_0000), convert_to_reg(-129.0));
     }
 
     #[test]
@@ -142,6 +149,5 @@ mod tests {
         assert_eq!((0b1111_0011, 0b1000_0000), convert_to_reg_ext(-25.0));
         assert_eq!((0b1110_0100, 0b1000_0000), convert_to_reg_ext(-55.0));
         assert_eq!((0b1000_0000, 0b0000_0000), convert_to_reg_ext(-256.0));
-        assert_eq!((0b1000_0000, 0b0000_0000), convert_to_reg_ext(-257.0));
     }
 }

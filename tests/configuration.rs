@@ -198,3 +198,25 @@ set_value_test!(
     0b1111_0000,
     0b0111_1111
 );
+
+#[test]
+fn can_set_extended_high_temp_threshold() {
+    let expectations = [
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![
+                Register::CONFIG,
+                DEFAULT_MSB | BFH::EXTENDED_MODE,
+                DEFAULT_LSB,
+            ],
+        ),
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![Register::T_HIGH, 0b0111_1111, 0b1111_0000],
+        ),
+    ];
+    let mut dev = setup(&expectations);
+    dev.enable_extended_mode().unwrap();
+    dev.set_high_temperature_threshold(255.875).unwrap();
+    dev.destroy().done();
+}
