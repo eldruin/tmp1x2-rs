@@ -277,7 +277,7 @@ pub enum Error<E> {
 }
 
 /// Conversion rate for continuous conversion mode
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum ConversionRate {
     /// 0.25Hz
     _0_25Hz,
@@ -292,7 +292,7 @@ pub enum ConversionRate {
 /// Fault queue
 ///
 /// Number of consecutive faults necessary to trigger an alert.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum FaultQueue {
     /// 1 fault will trigger an alert (default)
     _1,
@@ -305,7 +305,7 @@ pub enum FaultQueue {
 }
 
 /// Alert polarity
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum AlertPolarity {
     /// Active low (default)
     ActiveLow,
@@ -314,7 +314,7 @@ pub enum AlertPolarity {
 }
 
 /// Thermostat mode
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum ThermostatMode {
     /// Comparator (default)
     ///
