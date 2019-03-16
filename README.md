@@ -75,6 +75,11 @@ Datasheets:
 - [TMP102](http://www.ti.com/lit/ds/symlink/tmp102.pdf)
 - [TMP112x](http://www.ti.com/lit/ds/symlink/tmp112.pdf)
 
+## Support
+
+For questions, issues, feature requests, and other changes, please file an
+[issue in the github project](https://github.com/eldruin/tmp1x2-rs/issues).
+
 ## License
 
 Licensed under either of
