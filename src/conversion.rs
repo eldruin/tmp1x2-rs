@@ -51,40 +51,58 @@ pub fn convert_temp_to_register_extended(mut t: f32) -> (u8, u8) {
 mod tests {
     use super::*;
 
+    macro_rules! assert_near {
+        ($left:expr, $right:expr) => {
+            assert!(($left - $right) < core::f32::EPSILON && ($right - $left) < core::f32::EPSILON);
+        };
+    }
+
+    #[test]
+    fn assert_near_can_succeed() {
+        assert_near!(1.0, 1.0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn assert_near_can_fail() {
+        assert_near!(1.0, 1.1);
+    }
+
+
     #[test]
     fn can_convert_temperature_from_register_normal_mode() {
-        assert_eq!(127.9375, convert_temp_from_register(0b0111_1111, 0b1111_0000));
-        assert_eq!(100.0,    convert_temp_from_register(0b0110_0100, 0b0000_0000));
-        assert_eq!( 80.0,    convert_temp_from_register(0b0101_0000, 0b0000_0000));
-        assert_eq!( 75.0,    convert_temp_from_register(0b0100_1011, 0b0000_0000));
-        assert_eq!( 50.0,    convert_temp_from_register(0b0011_0010, 0b0000_0000));
-        assert_eq!( 25.0,    convert_temp_from_register(0b0001_1001, 0b0000_0000));
-        assert_eq!(  0.25,   convert_temp_from_register(0b0000_0000, 0b0100_0000));
-        assert_eq!(  0.0,    convert_temp_from_register(0b0000_0000, 0b0000_0000));
-        assert_eq!( -0.25,   convert_temp_from_register(0b1111_1111, 0b1100_0000));
-        assert_eq!(-25.0,    convert_temp_from_register(0b1110_0111, 0b0000_0000));
-        assert_eq!(-55.0,    convert_temp_from_register(0b1100_1001, 0b0000_0000));
-        assert_eq!(-64.0,    convert_temp_from_register(0b1100_0000, 0b0000_0000));
-        assert_eq!(-128.0,   convert_temp_from_register(0b1000_0000, 0b0000_0000));
+        assert_near!(127.9375, convert_temp_from_register(0b0111_1111, 0b1111_0000));
+        assert_near!(100.0,    convert_temp_from_register(0b0110_0100, 0b0000_0000));
+        assert_near!( 80.0,    convert_temp_from_register(0b0101_0000, 0b0000_0000));
+        assert_near!( 75.0,    convert_temp_from_register(0b0100_1011, 0b0000_0000));
+        assert_near!( 50.0,    convert_temp_from_register(0b0011_0010, 0b0000_0000));
+        assert_near!( 25.0,    convert_temp_from_register(0b0001_1001, 0b0000_0000));
+        assert_near!(  0.25,   convert_temp_from_register(0b0000_0000, 0b0100_0000));
+        assert_near!(  0.0,    convert_temp_from_register(0b0000_0000, 0b0000_0000));
+        assert_near!( -0.25,   convert_temp_from_register(0b1111_1111, 0b1100_0000));
+        assert_near!(-25.0,    convert_temp_from_register(0b1110_0111, 0b0000_0000));
+        assert_near!(-55.0,    convert_temp_from_register(0b1100_1001, 0b0000_0000));
+        assert_near!(-64.0,    convert_temp_from_register(0b1100_0000, 0b0000_0000));
+        assert_near!(-128.0,   convert_temp_from_register(0b1000_0000, 0b0000_0000));
     }
 
     #[test]
     fn can_convert_temperature_from_register_extended_mode() {
-        assert_eq!(255.875,  convert_temp_from_register(0b0111_1111, 0b1111_0001));
-        assert_eq!(150.0,    convert_temp_from_register(0b0100_1011, 0b0000_0001));
-        assert_eq!(128.0,    convert_temp_from_register(0b0100_0000, 0b0000_0001));
-        assert_eq!(127.9375, convert_temp_from_register(0b0011_1111, 0b1111_1001));
-        assert_eq!(100.0,    convert_temp_from_register(0b0011_0010, 0b0000_0001));
-        assert_eq!( 80.0,    convert_temp_from_register(0b0010_1000, 0b0000_0001));
-        assert_eq!( 75.0,    convert_temp_from_register(0b0010_0101, 0b1000_0001));
-        assert_eq!( 50.0,    convert_temp_from_register(0b0001_1001, 0b0000_0001));
-        assert_eq!( 25.0,    convert_temp_from_register(0b0000_1100, 0b1000_0001));
-        assert_eq!(  0.25,   convert_temp_from_register(0b0000_0000, 0b0010_0001));
-        assert_eq!(  0.0,    convert_temp_from_register(0b0000_0000, 0b0000_0001));
-        assert_eq!( -0.25,   convert_temp_from_register(0b1111_1111, 0b1110_0001));
-        assert_eq!(-25.0,    convert_temp_from_register(0b1111_0011, 0b1000_0001));
-        assert_eq!(-55.0,    convert_temp_from_register(0b1110_0100, 0b1000_0001));
-        assert_eq!(-256.0,    convert_temp_from_register(0b1000_0000, 0b0000_0001));
+        assert_near!(255.875,  convert_temp_from_register(0b0111_1111, 0b1111_0001));
+        assert_near!(150.0,    convert_temp_from_register(0b0100_1011, 0b0000_0001));
+        assert_near!(128.0,    convert_temp_from_register(0b0100_0000, 0b0000_0001));
+        assert_near!(127.9375, convert_temp_from_register(0b0011_1111, 0b1111_1001));
+        assert_near!(100.0,    convert_temp_from_register(0b0011_0010, 0b0000_0001));
+        assert_near!( 80.0,    convert_temp_from_register(0b0010_1000, 0b0000_0001));
+        assert_near!( 75.0,    convert_temp_from_register(0b0010_0101, 0b1000_0001));
+        assert_near!( 50.0,    convert_temp_from_register(0b0001_1001, 0b0000_0001));
+        assert_near!( 25.0,    convert_temp_from_register(0b0000_1100, 0b1000_0001));
+        assert_near!(  0.25,   convert_temp_from_register(0b0000_0000, 0b0010_0001));
+        assert_near!(  0.0,    convert_temp_from_register(0b0000_0000, 0b0000_0001));
+        assert_near!( -0.25,   convert_temp_from_register(0b1111_1111, 0b1110_0001));
+        assert_near!(-25.0,    convert_temp_from_register(0b1111_0011, 0b1000_0001));
+        assert_near!(-55.0,    convert_temp_from_register(0b1110_0100, 0b1000_0001));
+        assert_near!(-256.0,    convert_temp_from_register(0b1000_0000, 0b0000_0001));
     }
 
     #[test]

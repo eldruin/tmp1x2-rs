@@ -26,8 +26,6 @@ macro_rules! read_test {
     };
 }
 
-read_test!(can_read_temperature, read_temperature, TEMPERATURE, 0, 0b0110_0100, 100.0);
-
 read_test!(one_shot_result_not_ready, is_one_shot_measurement_result_ready, CONFIG,
            DEFAULT_CONFIG_LSB,                 DEFAULT_CONFIG_MSB, false);
 read_test!(one_shot_result_ready,     is_one_shot_measurement_result_ready, CONFIG,
@@ -42,3 +40,18 @@ read_test!(comp_alert_not_active_high_pol, is_comparator_mode_alert_active, CONF
            DEFAULT_CONFIG_LSB | BFL::ALERT_POLARITY, DEFAULT_CONFIG_MSB & !BFH::ALERT, false);
 read_test!(comp_alert_active_high_pol,     is_comparator_mode_alert_active, CONFIG,
            DEFAULT_CONFIG_LSB | BFL::ALERT_POLARITY, DEFAULT_CONFIG_MSB |  BFH::ALERT, true);
+
+macro_rules! assert_near {
+    ($left:expr, $right:expr) => {
+        assert!(($left - $right) < core::f32::EPSILON && ($right - $left) < core::f32::EPSILON);
+    };
+}
+
+#[test]
+fn can_read_temperature() {
+    let expectations = get_expectation(Register::TEMPERATURE, 0, 0b0110_0100);
+    let mut dev = setup(&expectations);
+    let value = dev.read_temperature().unwrap();
+    assert_near!(100.0, value);
+    dev.destroy().done();
+}
