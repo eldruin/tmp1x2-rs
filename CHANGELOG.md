@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+...
+
+## [0.2.0] - 2019-03-17
+
 ### Changed
 - [breaking-change] The modes are now modeled through a marker type. Per default
   the devices are in continuous mode. In this mode the `read_temperature()` behaves
@@ -25,4 +29,5 @@ This is the initial release to crates.io of the feature-complete driver. There
 may be some API changes in the future. All changes will be documented in this
 CHANGELOG.
 
-[Unreleased]: https://github.com/eldruin/tmp1x2-rs/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/eldruin/tmp1x2-rs/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/eldruin/tmp1x2-rs/compare/v0.1.0...v0.2.0
