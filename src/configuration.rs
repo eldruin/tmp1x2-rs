@@ -1,4 +1,3 @@
-extern crate embedded_hal as hal;
 use super::conversion::{convert_temp_to_register_extended, convert_temp_to_register_normal};
 use super::{
     marker::mode, AlertPolarity, BitFlagsHigh as BFH, BitFlagsLow as BFL, Config,

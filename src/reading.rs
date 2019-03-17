@@ -1,4 +1,3 @@
-extern crate embedded_hal as hal;
 use super::{marker::mode, BitFlagsHigh, BitFlagsLow, Error, Register, Tmp1x2};
 use hal::blocking::i2c;
 
