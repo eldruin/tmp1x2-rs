@@ -1,7 +1,7 @@
 extern crate embedded_hal_mock as hal;
 extern crate tmp1x2;
 use hal::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
-use tmp1x2::{SlaveAddr, Tmp1x2};
+use tmp1x2::{marker, SlaveAddr, Tmp1x2};
 
 pub const DEVICE_ADDRESS: u8 = 0b100_1000;
 
@@ -41,7 +41,7 @@ impl BitFlagsHigh {
 pub const DEFAULT_CONFIG_MSB: u8 = BitFlagsHigh::CONV_RATE1 | BitFlagsHigh::ALERT;
 pub const DEFAULT_CONFIG_LSB: u8 = BitFlagsLow::RESOLUTION;
 
-pub fn setup(expectations: &[I2cTransaction]) -> Tmp1x2<I2cMock> {
+pub fn setup(expectations: &[I2cTransaction]) -> Tmp1x2<I2cMock, marker::mode::Continuous> {
     let i2c = I2cMock::new(&expectations);
     Tmp1x2::new(i2c, SlaveAddr::default())
 }

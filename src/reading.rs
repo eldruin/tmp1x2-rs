@@ -1,10 +1,10 @@
 extern crate embedded_hal as hal;
-use super::{BitFlagsHigh, BitFlagsLow, Error, Register, Tmp1x2};
+use super::{marker::mode, BitFlagsHigh, BitFlagsLow, Error, Register, Tmp1x2};
 use hal::blocking::i2c;
 
 use conversion::convert_temp_from_register;
 
-impl<I2C, E> Tmp1x2<I2C>
+impl<I2C, E> Tmp1x2<I2C, mode::Continuous>
 where
     I2C: i2c::WriteRead<Error = E>,
 {
@@ -16,11 +16,14 @@ where
             .map_err(Error::I2C)?;
         Ok(convert_temp_from_register(data[0], data[1]))
     }
+}
 
+impl<I2C, E> Tmp1x2<I2C, mode::OneShot>
+where
+    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+{
     /// Read whether the one-shot measurement result is ready.
-    ///
-    /// See also: [trigger_one_shot_measurement()](#method.trigger_one_shot_measurement)
-    pub fn is_one_shot_measurement_result_ready(&mut self) -> Result<bool, Error<E>> {
+    fn one_shot_measurement_is_ready(&mut self) -> Result<bool, Error<E>> {
         let mut data = [0; 2];
         self.i2c
             .write_read(self.address, &[Register::CONFIG], &mut data)
@@ -28,6 +31,47 @@ where
         Ok((data[1] & BitFlagsLow::ONE_SHOT) != 0)
     }
 
+    /// Perform a one-shot temperature measurement.
+    ///
+    /// This allows triggering a single temperature measurement when in
+    /// shutdown mode. The device returns to the shutdown state at the
+    /// completion of the temperature conversion. This reduces power
+    /// consumption when continuous temperature monitoring is not required.
+    ///
+    /// If no temperature conversion was started yet, calling this method
+    /// will start one and return `nb::Error::WouldBlock`. Subsequent calls
+    /// will continue to return `nb::Error::WouldBlock` until the
+    /// temperature measurement is finished. Then it will return the
+    /// measured temperature.
+    pub fn read_temperature(&mut self) -> nb::Result<f32, Error<E>> {
+        if !self.a_temperature_conversion_was_started {
+            self.trigger_one_shot_measurement()
+                .map_err(nb::Error::Other)?;
+            self.a_temperature_conversion_was_started = true;
+            return Err(nb::Error::WouldBlock);
+        }
+        if !self
+            .one_shot_measurement_is_ready()
+            .map_err(nb::Error::Other)?
+        {
+            Err(nb::Error::WouldBlock)
+        } else {
+            let mut data = [0; 2];
+            self.i2c
+                .write_read(self.address, &[Register::TEMPERATURE], &mut data)
+                .map_err(Error::I2C)
+                .map_err(nb::Error::Other)?;
+            let temp = convert_temp_from_register(data[0], data[1]);
+            self.a_temperature_conversion_was_started = false;
+            Ok(temp)
+        }
+    }
+}
+
+impl<I2C, E, MODE> Tmp1x2<I2C, MODE>
+where
+    I2C: i2c::WriteRead<Error = E>,
+{
     /// Read whether an alert is active as defined by the comparator mode.
     ///
     /// *NOTE*: This ignores the thermostat mode setting and always corresponds

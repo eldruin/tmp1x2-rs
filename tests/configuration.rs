@@ -29,8 +29,34 @@ macro_rules! config_test {
     };
 }
 
-config_test!(can_enable, enable, DEFAULT_LSB, DEFAULT_MSB);
-config_test!(can_disable, disable, DEFAULT_LSB | 1, DEFAULT_MSB);
+#[test]
+fn can_change_into_one_shot() {
+    let expectations = [I2cTransaction::write(
+        DEVICE_ADDRESS,
+        vec![Register::CONFIG, DEFAULT_MSB, DEFAULT_LSB | 1],
+    )];
+    let dev = setup(&expectations);
+    let dev = dev.into_one_shot().unwrap();
+    dev.destroy().done();
+}
+
+#[test]
+fn can_change_into_continuous() {
+    let expectations = [
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![Register::CONFIG, DEFAULT_MSB, DEFAULT_LSB | 1],
+        ),
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![Register::CONFIG, DEFAULT_MSB, DEFAULT_LSB],
+        ),
+    ];
+    let dev = setup(&expectations);
+    let dev = dev.into_one_shot().unwrap();
+    let dev = dev.into_continuous().unwrap();
+    dev.destroy().done();
+}
 
 config_test!(
     can_enable_extended_mode,
@@ -42,13 +68,6 @@ config_test!(
     can_disable_extended_mode,
     disable_extended_mode,
     DEFAULT_LSB,
-    DEFAULT_MSB
-);
-
-config_test!(
-    can_trigger_one_shot_measurement,
-    trigger_one_shot_measurement,
-    DEFAULT_LSB | BFL::ONE_SHOT,
     DEFAULT_MSB
 );
 

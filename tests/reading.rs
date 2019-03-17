@@ -30,23 +30,6 @@ macro_rules! read_test {
 }
 
 read_test!(
-    one_shot_result_not_ready,
-    is_one_shot_measurement_result_ready,
-    CONFIG,
-    DEFAULT_CONFIG_LSB,
-    DEFAULT_CONFIG_MSB,
-    false
-);
-read_test!(
-    one_shot_result_ready,
-    is_one_shot_measurement_result_ready,
-    CONFIG,
-    DEFAULT_CONFIG_LSB | BFL::ONE_SHOT,
-    DEFAULT_CONFIG_MSB,
-    true
-);
-
-read_test!(
     comp_alert_not_active,
     is_comparator_mode_alert_active,
     CONFIG,
@@ -87,8 +70,114 @@ macro_rules! assert_near {
 }
 
 #[test]
-fn can_read_temperature() {
-    let expectations = get_expectation(Register::TEMPERATURE, 0, 0b0110_0100);
+fn in_one_shot_read_temperature_triggers_measurement() {
+    let expectations = [
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![
+                Register::CONFIG,
+                DEFAULT_CONFIG_MSB,
+                DEFAULT_CONFIG_LSB | BFL::SHUTDOWN,
+            ],
+        ),
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![
+                Register::CONFIG,
+                DEFAULT_CONFIG_MSB,
+                DEFAULT_CONFIG_LSB | BFL::ONE_SHOT | BFL::SHUTDOWN,
+            ],
+        ),
+    ];
+    let dev = setup(&expectations);
+    let mut dev = dev.into_one_shot().unwrap();
+    match dev.read_temperature() {
+        Err(nb::Error::WouldBlock) => (),
+        _ => panic!(),
+    }
+    dev.destroy().done();
+}
+
+#[test]
+fn in_one_shot_read_temperature_returns_would_block_if_not_ready() {
+    let expectations = [
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![
+                Register::CONFIG,
+                DEFAULT_CONFIG_MSB,
+                DEFAULT_CONFIG_LSB | BFL::SHUTDOWN,
+            ],
+        ),
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![
+                Register::CONFIG,
+                DEFAULT_CONFIG_MSB,
+                DEFAULT_CONFIG_LSB | BFL::ONE_SHOT | BFL::SHUTDOWN,
+            ],
+        ),
+        I2cTransaction::write_read(
+            DEVICE_ADDRESS,
+            vec![Register::CONFIG],
+            vec![DEFAULT_CONFIG_MSB, DEFAULT_CONFIG_LSB],
+        ),
+    ];
+    let dev = setup(&expectations);
+    let mut dev = dev.into_one_shot().unwrap();
+    dev.read_temperature().expect_err("Should return an error");
+    match dev.read_temperature() {
+        Err(nb::Error::WouldBlock) => (),
+        _ => panic!(),
+    }
+    dev.destroy().done();
+}
+
+#[test]
+fn in_one_shot_can_read_temperature() {
+    let expectations = [
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![
+                Register::CONFIG,
+                DEFAULT_CONFIG_MSB,
+                DEFAULT_CONFIG_LSB | BFL::SHUTDOWN,
+            ],
+        ),
+        I2cTransaction::write(
+            DEVICE_ADDRESS,
+            vec![
+                Register::CONFIG,
+                DEFAULT_CONFIG_MSB,
+                DEFAULT_CONFIG_LSB | BFL::ONE_SHOT | BFL::SHUTDOWN,
+            ],
+        ),
+        I2cTransaction::write_read(
+            DEVICE_ADDRESS,
+            vec![Register::CONFIG],
+            vec![DEFAULT_CONFIG_MSB, DEFAULT_CONFIG_LSB | BFL::ONE_SHOT],
+        ),
+        I2cTransaction::write_read(
+            DEVICE_ADDRESS,
+            vec![Register::TEMPERATURE],
+            vec![0b0110_0100, 0],
+        ),
+    ];
+    let dev = setup(&expectations);
+    let mut dev = dev.into_one_shot().unwrap();
+    dev.read_temperature().expect_err("Should return an error");
+    let temp = dev.read_temperature().unwrap();
+    assert_near!(100.0, temp);
+    dev.destroy().done();
+}
+
+#[test]
+fn in_continuous_can_read_temperature() {
+    let expectations = [I2cTransaction::write_read(
+        DEVICE_ADDRESS,
+        vec![Register::TEMPERATURE],
+        vec![0b0110_0100, 0],
+    )];
     let mut dev = setup(&expectations);
     let value = dev.read_temperature().unwrap();
     assert_near!(100.0, value);

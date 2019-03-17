@@ -5,7 +5,7 @@
 //! [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 //!
 //! This driver allows you to:
-//! - Enable/disable the device.
+//! - Change into one-shot or continuous conversion mode.
 //! - Read the temperature.
 //! - Enable/disable the extended measurement mode.
 //! - Trigger a one-shot measurement.
@@ -68,7 +68,7 @@
 //!
 //! ## Usage examples (see also examples folder)
 //!
-//! ### Read temperature
+//! ### Read temperature in continuous mode
 //!
 //! Import this crate and an `embedded_hal` implementation, then instantiate
 //! the device:
@@ -76,13 +76,12 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate tmp1x2;
-//!
-//! use hal::I2cdev;
-//! use tmp1x2::{ Tmp1x2, SlaveAddr };
+//! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
 //! # fn main() {
-//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
 //! let address = SlaveAddr::default();
+//! // Per default the device is in continuous mode
 //! let mut sensor = Tmp1x2::new(dev, address);
 //! let temperature = sensor.read_temperature().unwrap();
 //! println!("Temperature: {}", temperature);
@@ -94,34 +93,56 @@
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate tmp1x2;
-//!
-//! use hal::I2cdev;
-//! use tmp1x2::{ Tmp1x2, SlaveAddr };
+//! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
 //! # fn main() {
-//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
 //! let (a1, a0) = (false, true);
 //! let address = SlaveAddr::Alternative(a1, a0);
 //! let mut sensor = Tmp1x2::new(dev, address);
 //! # }
 //! ```
 //!
-//! ### Enable / disable the sensor
+//! ### Change into one-shot mode and trigger a measurement
+//!
+//! ```no_run
+//! extern crate linux_embedded_hal as hal;
+//! extern crate tmp1x2;
+//! extern crate nb;
+//!
+//! use tmp1x2::{Tmp1x2, SlaveAddr};
+//! use nb::block;
+//!
+//! # fn main() {
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let sensor = Tmp1x2::new(dev, SlaveAddr::default());
+//! let mut sensor = sensor.into_one_shot().ok().expect("Mode change error");
+//! let temperature = block!(sensor.read_temperature());
+//! # }
+//! ```
+//!
+//! ### Get the device back if there was an error during a mode change
 //!
 //! ```no_run
 //! extern crate linux_embedded_hal as hal;
 //! extern crate tmp1x2;
 //!
-//! use hal::I2cdev;
-//! use tmp1x2::{ Tmp1x2, SlaveAddr };
+//! use tmp1x2::{ModeChangeError, Tmp1x2, SlaveAddr};
 //!
 //! # fn main() {
-//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
-//! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
-//! sensor.disable().unwrap(); // shutdown
-//! sensor.enable().unwrap();
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let mut sensor_continuous = Tmp1x2::new(dev, SlaveAddr::default());
+//! let result = sensor_continuous.into_one_shot();
+//! if let Err(ModeChangeError::I2C(e, dev)) = result {
+//!     sensor_continuous = dev;
+//! } else if let Ok(one_shot_sensor) = result {
+//!     // do something with one-shot sensor...
+//! } else {
+//!     unreachable!();
+//! }
 //! # }
 //! ```
+//!
 //!
 //! ### Enable the extended measurement mode
 //!
@@ -129,34 +150,12 @@
 //! extern crate linux_embedded_hal as hal;
 //! extern crate tmp1x2;
 //!
-//! use hal::I2cdev;
-//! use tmp1x2::{ Tmp1x2, SlaveAddr };
+//! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
 //! # fn main() {
-//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.enable_extended_mode().unwrap();
-//! # }
-//! ```
-//!
-//! ### Trigger a one-shot measurement while in shutdown
-//!
-//! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
-//!
-//! use hal::I2cdev;
-//! use tmp1x2::{ Tmp1x2, SlaveAddr };
-//!
-//! # fn main() {
-//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
-//! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
-//! sensor.disable().unwrap(); // shutdown
-//! sensor.trigger_one_shot_measurement().unwrap();
-//! while(!sensor.is_one_shot_measurement_result_ready().unwrap()) {
-//!     // insert some delay here
-//! }
-//! let temperature = sensor.read_temperature().unwrap();
 //! # }
 //! ```
 //!
@@ -253,7 +252,7 @@
 //! extern crate tmp1x2;
 //!
 //! use hal::I2cdev;
-//! use tmp1x2::{ Tmp1x2, SlaveAddr };
+//! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
 //! # fn main() {
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
@@ -268,12 +267,26 @@
 
 extern crate embedded_hal as hal;
 use hal::blocking::i2c;
+extern crate nb;
+use core::marker::PhantomData;
 
-/// All possible errors in this crate
+/// Possible errors in this crate
 #[derive(Debug)]
 pub enum Error<E> {
     /// I²C bus error
     I2C(E),
+}
+
+/// Error type for mode changes.
+///
+/// This allows to retrieve the unchanged device in case of an error.
+#[derive(Debug)]
+pub enum ModeChangeError<E, DEV> {
+    /// I²C bus error while changing mode.
+    ///
+    /// `E` is the error that happened.
+    /// `DEV` is the device with the mode unchanged.
+    I2C(E, DEV),
 }
 
 /// Conversion rate for continuous conversion mode
@@ -405,30 +418,49 @@ impl Default for Config {
     }
 }
 
+#[doc(hidden)]
+pub mod marker {
+    pub mod mode {
+        #[derive(Debug)]
+        pub struct Continuous(());
+        #[derive(Debug)]
+        pub struct OneShot(());
+    }
+}
+
 /// TMP1X2 device driver.
 #[derive(Debug, Default)]
-pub struct Tmp1x2<I2C> {
+pub struct Tmp1x2<I2C, MODE> {
     /// The concrete I²C device implementation.
     i2c: I2C,
     /// The I²C device address.
     address: u8,
     /// Configuration register status.
     config: Config,
+    /// A temperature conversion was started.
+    a_temperature_conversion_was_started: bool,
+    _mode: PhantomData<MODE>,
 }
 
-impl<I2C, E> Tmp1x2<I2C>
+impl<I2C, E> Tmp1x2<I2C, marker::mode::Continuous>
 where
     I2C: i2c::Write<Error = E>,
 {
     /// Create new instance of the TMP102 or TMP112x device.
+    ///
+    /// By default they are in continuous conversion mode.
     pub fn new(i2c: I2C, address: SlaveAddr) -> Self {
         Tmp1x2 {
             i2c,
             address: address.addr(DEVICE_BASE_ADDRESS),
             config: Config::default(),
+            a_temperature_conversion_was_started: false,
+            _mode: PhantomData,
         }
     }
+}
 
+impl<I2C, MODE> Tmp1x2<I2C, MODE> {
     /// Destroy driver instance, return I²C bus instance.
     pub fn destroy(self) -> I2C {
         self.i2c
@@ -438,6 +470,8 @@ where
 mod configuration;
 mod conversion;
 mod reading;
+
+//impl<E> core::fmt::Debug for nb::Error<E> {}
 
 #[cfg(test)]
 mod tests {

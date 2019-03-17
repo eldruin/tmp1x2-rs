@@ -13,7 +13,7 @@ high-accuracy, low-power, digital temperature sensors, based on the
 [`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 
 This driver allows you to:
-- Enable/disable the device.
+- Change into one-shot or continuous conversion mode.
 - Read the temperature.
 - Enable/disable the extended measurement mode.
 - Trigger a one-shot measurement.

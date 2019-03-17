@@ -1,23 +1,82 @@
 extern crate embedded_hal as hal;
 use super::conversion::{convert_temp_to_register_extended, convert_temp_to_register_normal};
 use super::{
-    AlertPolarity, BitFlagsHigh as BFH, BitFlagsLow as BFL, Config, ConversionRate as CR, Error,
-    FaultQueue, Register, ThermostatMode, Tmp1x2,
+    marker::mode, AlertPolarity, BitFlagsHigh as BFH, BitFlagsLow as BFL, Config,
+    ConversionRate as CR, Error, FaultQueue, ModeChangeError, Register, ThermostatMode, Tmp1x2,
 };
+use core::marker::PhantomData;
 use hal::blocking::i2c;
 
-impl<I2C, E> Tmp1x2<I2C>
+impl<I2C, E> Tmp1x2<I2C, mode::Continuous>
 where
     I2C: i2c::Write<Error = E>,
 {
-    /// Enable the sensor.
-    pub fn enable(&mut self) -> Result<(), Error<E>> {
+    /// Change into one-shot conversion mode (shutdown).
+    ///
+    /// If the mode change failed you will get a `ModeChangeError`.
+    /// You can get the unchanged device back from it.
+    pub fn into_one_shot(mut self) -> Result<Tmp1x2<I2C, mode::OneShot>, ModeChangeError<E, Self>> {
+        if let Err(Error::I2C(e)) = self.config_one_shot() {
+            return Err(ModeChangeError::I2C(e, self));
+        }
+        Ok(Tmp1x2 {
+            i2c: self.i2c,
+            address: self.address,
+            config: self.config,
+            a_temperature_conversion_was_started: false,
+            _mode: PhantomData,
+        })
+    }
+}
+
+impl<I2C, E> Tmp1x2<I2C, mode::OneShot>
+where
+    I2C: i2c::Write<Error = E>,
+{
+    /// Change into continuous conversion mode.
+    ///
+    /// If the mode change failed you will get a `ModeChangeError`.
+    /// You can get the unchanged device back from it.
+    pub fn into_continuous(
+        mut self,
+    ) -> Result<Tmp1x2<I2C, mode::Continuous>, ModeChangeError<E, Self>> {
+        if let Err(Error::I2C(e)) = self.config_continuous() {
+            return Err(ModeChangeError::I2C(e, self));
+        }
+        Ok(Tmp1x2 {
+            i2c: self.i2c,
+            address: self.address,
+            config: self.config,
+            a_temperature_conversion_was_started: false,
+            _mode: PhantomData,
+        })
+    }
+
+    pub(crate) fn trigger_one_shot_measurement(&mut self) -> Result<(), Error<E>> {
+        // This bit is not stored
+        self.i2c
+            .write(
+                self.address,
+                &[
+                    Register::CONFIG,
+                    self.config.msb,
+                    self.config.lsb | BFL::ONE_SHOT,
+                ],
+            )
+            .map_err(Error::I2C)
+    }
+}
+
+impl<I2C, E, MODE> Tmp1x2<I2C, MODE>
+where
+    I2C: i2c::Write<Error = E>,
+{
+    fn config_continuous(&mut self) -> Result<(), Error<E>> {
         let Config { lsb, msb } = self.config;
         self.write_config(lsb & !BFL::SHUTDOWN, msb)
     }
 
-    /// Disable the sensor (shutdown).
-    pub fn disable(&mut self) -> Result<(), Error<E>> {
+    fn config_one_shot(&mut self) -> Result<(), Error<E>> {
         let Config { lsb, msb } = self.config;
         self.write_config(lsb | BFL::SHUTDOWN, msb)
     }
@@ -37,28 +96,6 @@ where
     pub fn disable_extended_mode(&mut self) -> Result<(), Error<E>> {
         let Config { lsb, msb } = self.config;
         self.write_config(lsb, msb & !BFH::EXTENDED_MODE)
-    }
-
-    /// Trigger a one-shot measurement when in shutdown mode (disabled).
-    ///
-    /// This allows triggering a single temperature measurement when in
-    /// shutdown mode. The device returns to the shutdown state at the
-    /// completion of the temperature conversion. This reduces power
-    /// consumption when continuous temperature monitoring is not required.
-    ///
-    /// See also: [is_one_shot_measurement_result_ready()](#method.is_one_shot_measurement_result_ready)
-    pub fn trigger_one_shot_measurement(&mut self) -> Result<(), Error<E>> {
-        // This bit is not stored
-        self.i2c
-            .write(
-                self.address,
-                &[
-                    Register::CONFIG,
-                    self.config.msb,
-                    self.config.lsb | BFL::ONE_SHOT,
-                ],
-            )
-            .map_err(Error::I2C)
     }
 
     /// Set the conversion rate when in continuous conversion mode.
