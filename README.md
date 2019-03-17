@@ -7,10 +7,8 @@
 ![Maintenance Intention](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
 
 This is a platform agnostic Rust driver for the TMP102 and TMP112
-high-accuracy, low-power, digital temperature sensors, based on the
+high-accuracy, low-power, digital temperature sensors, using the
 [`embedded-hal`] traits.
-
-[`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
 
 This driver allows you to:
 - Change into one-shot or continuous conversion mode.
@@ -56,8 +54,6 @@ Datasheets:
 
 Please find additional examples using hardware in this repository: [driver-examples]
 
-[driver-examples]: https://github.com/eldruin/driver-examples
-
 ```rust
 extern crate linux_embedded_hal as hal;
 extern crate tmp1x2;
@@ -93,3 +89,5 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
 
+[driver-examples]: https://github.com/eldruin/driver-examples
+[`embedded-hal`]: https://github.com/rust-embedded/embedded-hal
