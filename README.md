@@ -23,6 +23,8 @@ This driver allows you to:
 - Set the thermostat mode.
 - Read whether a comparator mode alert is active.
 
+[Introductory blog post](https://blog.eldruin.com/tmp1x2-temperature-sensor-driver-in-rust/)
+
 ## The devices
 
 This driver is compatible with both the TMP102 device as well as the TMP112
