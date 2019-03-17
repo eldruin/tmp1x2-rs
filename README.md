@@ -68,22 +68,17 @@ Please find additional examples using hardware in this repository: [driver-examp
 [driver-examples]: https://github.com/eldruin/driver-examples
 
 ```rust
-extern crate embedded_hal;
-extern crate linux_embedded_hal;
+extern crate linux_embedded_hal as hal;
 extern crate tmp1x2;
 
-use linux_embedded_hal::I2cdev;
-use tmp1x2::{SlaveAddr, Tmp1x2};
+use tmp1x2::{Tmp1x2, SlaveAddr};
 
 fn main() {
-    let dev = I2cdev::new("/dev/i2c-1").unwrap();
+    let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
     let address = SlaveAddr::default();
     let mut sensor = Tmp1x2::new(dev, address);
     let temperature = sensor.read_temperature().unwrap();
     println!("Temperature: {:.1}ºC", temperature);
-
-    // get the I2C device back
-    let dev = max30102.destroy();
 }
 ```
 
