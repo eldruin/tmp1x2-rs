@@ -191,6 +191,7 @@
 
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
+#![doc(html_root_url = "https://docs.rs/tmp1x2/0.2.1")]
 #![no_std]
 
 use core::marker::PhantomData;
