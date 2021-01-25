@@ -4,7 +4,6 @@
 [![Docs](https://docs.rs/tmp1x2/badge.svg)](https://docs.rs/tmp1x2)
 [![Build Status](https://github.com/eldruin/tmp1x2-rs/workflows/Build/badge.svg)](https://github.com/eldruin/tmp1x2-rs/actions?query=workflow%3ABuild)
 [![Coverage Status](https://coveralls.io/repos/github/eldruin/tmp1x2-rs/badge.svg?branch=master)](https://coveralls.io/github/eldruin/tmp1x2-rs?branch=master)
-![Maintenance Intention](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
 
 This is a platform agnostic Rust driver for the TMP102 and TMP112
 high-accuracy, low-power, digital temperature sensors, using the
