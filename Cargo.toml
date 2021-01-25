@@ -19,11 +19,6 @@ include = [
     "/LICENSE-APACHE",
 ]
 
-[badges]
-travis-ci = { repository = "eldruin/tmp1x2-rs", branch = "master" }
-coveralls = { repository = "eldruin/tmp1x2-rs", branch = "master", service = "github" }
-maintenance = { status = "actively-developed" }
-
 [dependencies]
 embedded-hal = "0.2"
 nb = "0.1"
