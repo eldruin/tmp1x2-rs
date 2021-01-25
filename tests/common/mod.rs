@@ -42,6 +42,6 @@ pub const DEFAULT_CONFIG_MSB: u8 = BitFlagsHigh::CONV_RATE1 | BitFlagsHigh::ALER
 pub const DEFAULT_CONFIG_LSB: u8 = BitFlagsLow::RESOLUTION;
 
 pub fn setup(expectations: &[I2cTransaction]) -> Tmp1x2<I2cMock, marker::mode::Continuous> {
-    let i2c = I2cMock::new(&expectations);
+    let i2c = I2cMock::new(expectations);
     Tmp1x2::new(i2c, SlaveAddr::default())
 }
