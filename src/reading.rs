@@ -79,6 +79,7 @@ where
     ///
     /// See also: [ThermostatMode](enum.ThermostatMode.html),
     /// [AlertPolarity](enum.AlertPolarity.html).
+    #[allow(clippy::wrong_self_convention)]
     pub fn is_comparator_mode_alert_active(&mut self) -> Result<bool, Error<E>> {
         let mut data = [0; 2];
         self.i2c
