@@ -1,10 +1,10 @@
-use super::conversion::{convert_temp_to_register_extended, convert_temp_to_register_normal};
-use super::{
+use crate::conversion::{convert_temp_to_register_extended, convert_temp_to_register_normal};
+use crate::{
     marker::mode, AlertPolarity, BitFlagsHigh as BFH, BitFlagsLow as BFL, Config,
     ConversionRate as CR, Error, FaultQueue, ModeChangeError, Register, ThermostatMode, Tmp1x2,
 };
 use core::marker::PhantomData;
-use hal::blocking::i2c;
+use embedded_hal::blocking::i2c;
 
 impl<I2C, E> Tmp1x2<I2C, mode::Continuous>
 where

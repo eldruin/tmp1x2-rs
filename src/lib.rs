@@ -52,63 +52,49 @@
 //! the device:
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
+//! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let address = SlaveAddr::default();
 //! // Per default the device is in continuous mode
 //! let mut sensor = Tmp1x2::new(dev, address);
 //! let temperature = sensor.read_temperature().unwrap();
 //! println!("Temperature: {}", temperature);
-//! # }
 //! ```
 //!
 //! ### Provide an alternative address
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
+//! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let (a1, a0) = (false, true);
 //! let address = SlaveAddr::Alternative(a1, a0);
 //! let mut sensor = Tmp1x2::new(dev, address);
-//! # }
 //! ```
 //!
 //! ### Change into one-shot mode and trigger a measurement
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
-//! extern crate nb;
-//!
-//! use tmp1x2::{Tmp1x2, SlaveAddr};
+//! use linux_embedded_hal::I2cdev;
 //! use nb::block;
+//! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! let mut sensor = sensor.into_one_shot().ok().expect("Mode change error");
 //! let temperature = block!(sensor.read_temperature());
-//! # }
 //! ```
 //!
 //! ### Get the device back if there was an error during a mode change
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
-//!
+//! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{ModeChangeError, Tmp1x2, SlaveAddr};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor_continuous = Tmp1x2::new(dev, SlaveAddr::default());
 //! let result = sensor_continuous.into_one_shot();
 //! if let Err(ModeChangeError::I2C(e, dev)) = result {
@@ -118,56 +104,40 @@
 //! } else {
 //!     unreachable!();
 //! }
-//! # }
 //! ```
-//!
 //!
 //! ### Enable the extended measurement mode
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
-//!
+//! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
-//! # fn main() {
-//! let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+//! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.enable_extended_mode().unwrap();
-//! # }
 //! ```
 //!
 //! ### Set the conversion rate to 1Hz
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
+//! use linux_embedded_hal::I2cdev;
+//! use tmp1x2::{Tmp1x2, SlaveAddr, ConversionRate};
 //!
-//! use hal::I2cdev;
-//! use tmp1x2::{ Tmp1x2, SlaveAddr, ConversionRate };
-//!
-//! # fn main() {
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_conversion_rate(ConversionRate::_1Hz).unwrap();
-//! # }
 //! ```
 //!
 //! ### Set the high and low temperature thresholds
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
+//! use linux_embedded_hal::I2cdev;
+//! use tmp1x2::{Tmp1x2, SlaveAddr, ConversionRate};
 //!
-//! use hal::I2cdev;
-//! use tmp1x2::{ Tmp1x2, SlaveAddr, ConversionRate };
-//!
-//! # fn main() {
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_low_temperature_threshold(-15.0).unwrap();
 //! sensor.set_high_temperature_threshold(60.0).unwrap();
-//! # }
 //! ```
 //!
 //! ### Set the fault queue
@@ -175,49 +145,34 @@
 //! This sets the number of consecutive faults that will trigger an alert.
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
+//! use linux_embedded_hal::I2cdev;
+//! use tmp1x2::{Tmp1x2, SlaveAddr, FaultQueue};
 //!
-//! use hal::I2cdev;
-//! use tmp1x2::{ Tmp1x2, SlaveAddr, FaultQueue };
-//!
-//! # fn main() {
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_fault_queue(FaultQueue::_4).unwrap();
-//! # }
 //! ```
 //!
 //! ### Set the alert polarity
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
-//!
-//! use hal::I2cdev;
+//! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{ Tmp1x2, SlaveAddr, AlertPolarity };
 //!
-//! # fn main() {
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_alert_polarity(AlertPolarity::ActiveHigh).unwrap();
-//! # }
 //! ```
 //!
 //! ### Set the thermostat mode
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
-//!
-//! use hal::I2cdev;
+//! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{ Tmp1x2, SlaveAddr, ThermostatMode };
 //!
-//! # fn main() {
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_thermostat_mode(ThermostatMode::Interrupt).unwrap();
-//! # }
 //! ```
 //!
 //! ### Check whether an alert is active as defined by the comparator mode
@@ -226,27 +181,21 @@
 //! the status as defined by the comparator mode.
 //!
 //! ```no_run
-//! extern crate linux_embedded_hal as hal;
-//! extern crate tmp1x2;
-//!
-//! use hal::I2cdev;
+//! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
-//! # fn main() {
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! let alert = sensor.is_comparator_mode_alert_active().unwrap();
-//! # }
 //! ```
 
 #![deny(unsafe_code)]
 #![deny(missing_docs)]
 #![no_std]
 
-extern crate embedded_hal as hal;
-use hal::blocking::i2c;
-extern crate nb;
 use core::marker::PhantomData;
+use embedded_hal::blocking::i2c;
+pub use nb;
 
 /// Possible errors in this crate
 #[derive(Debug)]

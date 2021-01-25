@@ -1,7 +1,6 @@
-use super::{marker::mode, BitFlagsHigh, BitFlagsLow, Error, Register, Tmp1x2};
-use hal::blocking::i2c;
-
-use conversion::convert_temp_from_register;
+use crate::conversion::convert_temp_from_register;
+use crate::{marker::mode, BitFlagsHigh, BitFlagsLow, Error, Register, Tmp1x2};
+use embedded_hal::blocking::i2c;
 
 impl<I2C, E> Tmp1x2<I2C, mode::Continuous>
 where

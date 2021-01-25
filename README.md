@@ -57,13 +57,11 @@ Datasheets:
 Please find additional examples using hardware in this repository: [driver-examples]
 
 ```rust
-extern crate linux_embedded_hal as hal;
-extern crate tmp1x2;
-
+use linux_embedded_hal::I2cdev;
 use tmp1x2::{Tmp1x2, SlaveAddr};
 
 fn main() {
-    let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
+    let dev = I2cdev::new("/dev/i2c-1").unwrap();
     let address = SlaveAddr::default();
     let mut sensor = Tmp1x2::new(dev, address);
     let temperature = sensor.read_temperature().unwrap();
