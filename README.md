@@ -2,6 +2,7 @@
 
 [![crates.io](https://img.shields.io/crates/v/tmp1x2.svg)](https://crates.io/crates/tmp1x2)
 [![Docs](https://docs.rs/tmp1x2/badge.svg)](https://docs.rs/tmp1x2)
+![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.62+-blue.svg)
 [![Build Status](https://github.com/eldruin/tmp1x2-rs/workflows/Build/badge.svg)](https://github.com/eldruin/tmp1x2-rs/actions?query=workflow%3ABuild)
 [![Coverage Status](https://coveralls.io/repos/github/eldruin/tmp1x2-rs/badge.svg?branch=master)](https://coveralls.io/github/eldruin/tmp1x2-rs?branch=master)
 
@@ -81,7 +82,7 @@ Licensed under either of
    http://www.apache.org/licenses/LICENSE-2.0)
  * MIT license ([LICENSE-MIT](LICENSE-MIT) or
    http://opensource.org/licenses/MIT)
-   
+
 at your option.
 
 ### Contributing
