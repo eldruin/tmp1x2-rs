@@ -221,13 +221,14 @@ pub enum ModeChangeError<E, DEV> {
 }
 
 /// Conversion rate for continuous conversion mode
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ConversionRate {
     /// 0.25Hz
     _0_25Hz,
     /// 1Hz
     _1Hz,
     /// 4 Hz (default)
+    #[default]
     _4Hz,
     /// 8 Hz
     _8Hz,
@@ -236,9 +237,10 @@ pub enum ConversionRate {
 /// Fault queue
 ///
 /// Number of consecutive faults necessary to trigger an alert.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FaultQueue {
     /// 1 fault will trigger an alert (default)
+    #[default]
     _1,
     /// 2 consecutive faults will trigger an alert
     _2,
@@ -249,16 +251,17 @@ pub enum FaultQueue {
 }
 
 /// Alert polarity
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum AlertPolarity {
     /// Active low (default)
+    #[default]
     ActiveLow,
     /// Active high
     ActiveHigh,
 }
 
 /// Thermostat mode
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ThermostatMode {
     /// Comparator (default)
     ///
@@ -267,6 +270,7 @@ pub enum ThermostatMode {
     /// exceeds the value set as *high* temperature threshold and remains
     /// active until the temperature falls below the value set as *low*
     /// temperature threshold.
+    #[default]
     Comparator,
     /// Interrupt
     ///
@@ -278,19 +282,13 @@ pub enum ThermostatMode {
 }
 
 /// Possible slave addresses
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SlaveAddr {
     /// Default slave address
+    #[default]
     Default,
     /// Alternative slave address providing bit values for A1 and A0
     Alternative(bool, bool),
-}
-
-impl Default for SlaveAddr {
-    /// Default slave address
-    fn default() -> Self {
-        SlaveAddr::Default
-    }
 }
 
 impl SlaveAddr {
