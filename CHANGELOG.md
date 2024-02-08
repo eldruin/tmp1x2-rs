@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [1.0.0] - 2024-02-08
+
 ### Added
 - Implemented more common traits for types.
 
@@ -44,6 +46,7 @@ may be some API changes in the future. All changes will be documented in this
 CHANGELOG.
 
 <!-- next-url -->
-[Unreleased]: https://github.com/eldruin/tmp1x2-rs/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/eldruin/tmp1x2-rs/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/eldruin/tmp1x2-rs/compare/v0.2.1...v1.0.0
 [0.2.1]: https://github.com/eldruin/tmp1x2-rs/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/eldruin/tmp1x2-rs/compare/v0.1.0...v0.2.0
