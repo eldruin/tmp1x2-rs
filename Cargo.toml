@@ -10,7 +10,7 @@ keywords = ["temperature", "sensor", "i2c", "driver", "embedded-hal-driver"]
 categories = ["embedded", "hardware-support", "no-std"]
 homepage = "https://github.com/eldruin/tmp1x2-rs"
 documentation = "https://docs.rs/tmp1x2"
-edition = "2018"
+edition = "2021"
 include = [
     "**/*.rs",
     "/Cargo.toml",
