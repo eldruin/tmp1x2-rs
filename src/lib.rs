@@ -46,10 +46,14 @@
 //!
 //! ## Usage examples (see also examples folder)
 //!
-//! ### Read temperature in continuous mode
+//! To use this driver, import this crate and an `embedded_hal` implementation,
+//! then instantiate the appropriate device.
 //!
-//! Import this crate and an `embedded_hal` implementation, then instantiate
-//! the device:
+//! Please find additional examples in this repository: [driver-examples]
+//!
+//! [driver-examples]: https://github.com/eldruin/driver-examples
+//!
+//! ### Read temperature in continuous mode
 //!
 //! ```no_run
 //! use linux_embedded_hal::I2cdev;
