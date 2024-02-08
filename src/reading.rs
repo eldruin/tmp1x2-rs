@@ -1,10 +1,10 @@
 use crate::conversion::convert_temp_from_register;
 use crate::{marker::mode, BitFlagsHigh, BitFlagsLow, Error, Register, Tmp1x2};
-use embedded_hal::blocking::i2c;
+use embedded_hal::i2c;
 
 impl<I2C, E> Tmp1x2<I2C, mode::Continuous>
 where
-    I2C: i2c::WriteRead<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Read the temperature from the sensor.
     pub fn read_temperature(&mut self) -> Result<f32, Error<E>> {
@@ -18,7 +18,7 @@ where
 
 impl<I2C, E> Tmp1x2<I2C, mode::OneShot>
 where
-    I2C: i2c::WriteRead<Error = E> + i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Read whether the one-shot measurement result is ready.
     fn one_shot_measurement_is_ready(&mut self) -> Result<bool, Error<E>> {
@@ -68,7 +68,7 @@ where
 
 impl<I2C, E, MODE> Tmp1x2<I2C, MODE>
 where
-    I2C: i2c::WriteRead<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Read whether an alert is active as defined by the comparator mode.
     ///

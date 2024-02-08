@@ -198,7 +198,7 @@
 #![no_std]
 
 use core::marker::PhantomData;
-use embedded_hal::blocking::i2c;
+use embedded_hal::i2c;
 pub use nb;
 
 /// Possible errors in this crate
@@ -375,7 +375,7 @@ pub struct Tmp1x2<I2C, MODE> {
 
 impl<I2C, E> Tmp1x2<I2C, marker::mode::Continuous>
 where
-    I2C: i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Create new instance of the TMP102 or TMP112x device.
     ///
@@ -407,8 +407,8 @@ mod reading;
 #[cfg(test)]
 mod tests {
     use super::*;
+    use embedded_hal_mock as hal;
     use DEVICE_BASE_ADDRESS as BASE_ADDR;
-    extern crate embedded_hal_mock as hal;
 
     #[test]
     fn can_get_default_address() {
@@ -438,8 +438,9 @@ mod tests {
 
     #[test]
     fn default_config() {
-        let dev = Tmp1x2::new(hal::i2c::Mock::new(&[]), SlaveAddr::default());
+        let dev = Tmp1x2::new(hal::eh1::i2c::Mock::new(&[]), SlaveAddr::default());
         assert_eq!(0b0110_0000, dev.config.lsb);
         assert_eq!(0b1010_0000, dev.config.msb);
+        dev.destroy().done()
     }
 }

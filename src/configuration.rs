@@ -4,11 +4,11 @@ use crate::{
     ConversionRate as CR, Error, FaultQueue, ModeChangeError, Register, ThermostatMode, Tmp1x2,
 };
 use core::marker::PhantomData;
-use embedded_hal::blocking::i2c;
+use embedded_hal::i2c;
 
 impl<I2C, E> Tmp1x2<I2C, mode::Continuous>
 where
-    I2C: i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Change into one-shot conversion mode (shutdown).
     ///
@@ -30,7 +30,7 @@ where
 
 impl<I2C, E> Tmp1x2<I2C, mode::OneShot>
 where
-    I2C: i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     /// Change into continuous conversion mode.
     ///
@@ -68,7 +68,7 @@ where
 
 impl<I2C, E, MODE> Tmp1x2<I2C, MODE>
 where
-    I2C: i2c::Write<Error = E>,
+    I2C: i2c::I2c<Error = E>,
 {
     fn config_continuous(&mut self) -> Result<(), Error<E>> {
         let Config { lsb, msb } = self.config;

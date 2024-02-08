@@ -1,6 +1,4 @@
-extern crate embedded_hal_mock as hal;
-extern crate tmp1x2;
-use hal::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
+use embedded_hal_mock::eh1::i2c::{Mock as I2cMock, Transaction as I2cTransaction};
 use tmp1x2::{marker, SlaveAddr, Tmp1x2};
 
 pub const DEVICE_ADDRESS: u8 = 0b100_1000;

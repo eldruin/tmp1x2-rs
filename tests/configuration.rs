@@ -1,6 +1,4 @@
-extern crate embedded_hal_mock as hal;
-extern crate tmp1x2;
-use hal::i2c::Transaction as I2cTransaction;
+use embedded_hal_mock::eh1::i2c::Transaction as I2cTransaction;
 use tmp1x2::{AlertPolarity as AP, ConversionRate as CR, FaultQueue as FQ, ThermostatMode as TM};
 
 mod common;
