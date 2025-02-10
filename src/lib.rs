@@ -311,9 +311,9 @@ impl Register {
     const T_HIGH: u8 = 0x03;
 }
 
-struct BitFlagsLow;
+struct BitFlagsHigh;
 
-impl BitFlagsLow {
+impl BitFlagsHigh {
     const SHUTDOWN: u8 = 0b0000_0001;
     const THERMOSTAT: u8 = 0b0000_0010;
     const ALERT_POLARITY: u8 = 0b0000_0100;
@@ -323,9 +323,9 @@ impl BitFlagsLow {
     const ONE_SHOT: u8 = 0b1000_0000;
 }
 
-struct BitFlagsHigh;
+struct BitFlagsLow;
 
-impl BitFlagsHigh {
+impl BitFlagsLow {
     const EXTENDED_MODE: u8 = 0b0001_0000;
     const ALERT: u8 = 0b0010_0000;
     const CONV_RATE0: u8 = 0b0100_0000;
@@ -333,16 +333,45 @@ impl BitFlagsHigh {
 }
 
 #[derive(Debug, Clone)]
-struct Config {
+struct RegisterU16 {
     lsb: u8,
     msb: u8,
 }
 
+type Config = RegisterU16;
+
 impl Default for Config {
     fn default() -> Self {
         Config {
-            lsb: BitFlagsLow::RESOLUTION,
-            msb: BitFlagsHigh::ALERT | BitFlagsHigh::CONV_RATE1,
+            msb: BitFlagsHigh::RESOLUTION,
+            lsb: BitFlagsLow::ALERT | BitFlagsLow::CONV_RATE1,
+        }
+    }
+}
+
+impl RegisterU16 {
+    fn with_high_msb(&self, mask: u8) -> Self {
+        Config {
+            msb: self.msb | mask,
+            lsb: self.lsb,
+        }
+    }
+    fn with_low_msb(&self, mask: u8) -> Self {
+        Config {
+            msb: self.msb & !mask,
+            lsb: self.lsb,
+        }
+    }
+    fn with_high_lsb(&self, mask: u8) -> Self {
+        Config {
+            msb: self.msb,
+            lsb: self.lsb | mask,
+        }
+    }
+    fn with_low_lsb(&self, mask: u8) -> Self {
+        Config {
+            msb: self.msb,
+            lsb: self.lsb & !mask,
         }
     }
 }
@@ -398,6 +427,7 @@ impl<I2C, MODE> Tmp1x2<I2C, MODE> {
 
 mod configuration;
 mod conversion;
+mod interface;
 mod reading;
 
 //impl<E> core::fmt::Debug for nb::Error<E> {}
@@ -437,8 +467,8 @@ mod tests {
     #[test]
     fn default_config() {
         let dev = Tmp1x2::new(hal::eh1::i2c::Mock::new(&[]), SlaveAddr::default());
-        assert_eq!(0b0110_0000, dev.config.lsb);
-        assert_eq!(0b1010_0000, dev.config.msb);
+        assert_eq!(0b0110_0000, dev.config.msb);
+        assert_eq!(0b1010_0000, dev.config.lsb);
         dev.destroy().done()
     }
 }

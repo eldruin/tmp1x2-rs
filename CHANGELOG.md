@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+### Fixed
+- Swap in configuration register byte order.
+
+
 ## [1.0.0] - 2024-02-08
 
 ### Added

@@ -31,16 +31,16 @@ read_test!(
     comp_alert_not_active,
     is_comparator_mode_alert_active,
     CONFIG,
-    DEFAULT_CONFIG_LSB,
-    DEFAULT_CONFIG_MSB | BFH::ALERT,
+    DEFAULT_CONFIG_LSB | BFL::ALERT,
+    DEFAULT_CONFIG_MSB,
     false
 );
 read_test!(
     comp_alert_active,
     is_comparator_mode_alert_active,
     CONFIG,
-    DEFAULT_CONFIG_LSB,
-    DEFAULT_CONFIG_MSB & !BFH::ALERT,
+    DEFAULT_CONFIG_LSB & !BFL::ALERT,
+    DEFAULT_CONFIG_MSB,
     true
 );
 
@@ -48,16 +48,16 @@ read_test!(
     comp_alert_not_active_high_pol,
     is_comparator_mode_alert_active,
     CONFIG,
-    DEFAULT_CONFIG_LSB | BFL::ALERT_POLARITY,
-    DEFAULT_CONFIG_MSB & !BFH::ALERT,
+    DEFAULT_CONFIG_LSB & !BFL::ALERT,
+    DEFAULT_CONFIG_MSB | BFH::ALERT_POLARITY,
     false
 );
 read_test!(
     comp_alert_active_high_pol,
     is_comparator_mode_alert_active,
     CONFIG,
-    DEFAULT_CONFIG_LSB | BFL::ALERT_POLARITY,
-    DEFAULT_CONFIG_MSB | BFH::ALERT,
+    DEFAULT_CONFIG_LSB | BFL::ALERT,
+    DEFAULT_CONFIG_MSB | BFH::ALERT_POLARITY,
     true
 );
 
@@ -74,16 +74,16 @@ fn in_one_shot_read_temperature_triggers_measurement() {
             DEVICE_ADDRESS,
             vec![
                 Register::CONFIG,
-                DEFAULT_CONFIG_MSB,
-                DEFAULT_CONFIG_LSB | BFL::SHUTDOWN,
+                DEFAULT_CONFIG_MSB | BFH::SHUTDOWN,
+                DEFAULT_CONFIG_LSB,
             ],
         ),
         I2cTransaction::write(
             DEVICE_ADDRESS,
             vec![
                 Register::CONFIG,
-                DEFAULT_CONFIG_MSB,
-                DEFAULT_CONFIG_LSB | BFL::ONE_SHOT | BFL::SHUTDOWN,
+                DEFAULT_CONFIG_MSB | BFH::ONE_SHOT | BFH::SHUTDOWN,
+                DEFAULT_CONFIG_LSB,
             ],
         ),
     ];
@@ -103,16 +103,16 @@ fn in_one_shot_read_temperature_returns_would_block_if_not_ready() {
             DEVICE_ADDRESS,
             vec![
                 Register::CONFIG,
-                DEFAULT_CONFIG_MSB,
-                DEFAULT_CONFIG_LSB | BFL::SHUTDOWN,
+                DEFAULT_CONFIG_MSB | BFH::SHUTDOWN,
+                DEFAULT_CONFIG_LSB,
             ],
         ),
         I2cTransaction::write(
             DEVICE_ADDRESS,
             vec![
                 Register::CONFIG,
-                DEFAULT_CONFIG_MSB,
-                DEFAULT_CONFIG_LSB | BFL::ONE_SHOT | BFL::SHUTDOWN,
+                DEFAULT_CONFIG_MSB | BFH::ONE_SHOT | BFH::SHUTDOWN,
+                DEFAULT_CONFIG_LSB,
             ],
         ),
         I2cTransaction::write_read(
@@ -138,22 +138,22 @@ fn in_one_shot_can_read_temperature() {
             DEVICE_ADDRESS,
             vec![
                 Register::CONFIG,
-                DEFAULT_CONFIG_MSB,
-                DEFAULT_CONFIG_LSB | BFL::SHUTDOWN,
+                DEFAULT_CONFIG_MSB | BFH::SHUTDOWN,
+                DEFAULT_CONFIG_LSB,
             ],
         ),
         I2cTransaction::write(
             DEVICE_ADDRESS,
             vec![
                 Register::CONFIG,
-                DEFAULT_CONFIG_MSB,
-                DEFAULT_CONFIG_LSB | BFL::ONE_SHOT | BFL::SHUTDOWN,
+                DEFAULT_CONFIG_MSB | BFH::ONE_SHOT | BFH::SHUTDOWN,
+                DEFAULT_CONFIG_LSB,
             ],
         ),
         I2cTransaction::write_read(
             DEVICE_ADDRESS,
             vec![Register::CONFIG],
-            vec![DEFAULT_CONFIG_MSB, DEFAULT_CONFIG_LSB | BFL::ONE_SHOT],
+            vec![DEFAULT_CONFIG_MSB | BFH::ONE_SHOT, DEFAULT_CONFIG_LSB],
         ),
         I2cTransaction::write_read(
             DEVICE_ADDRESS,

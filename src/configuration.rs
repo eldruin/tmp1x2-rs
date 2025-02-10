@@ -1,4 +1,5 @@
 use crate::conversion::{convert_temp_to_register_extended, convert_temp_to_register_normal};
+use crate::RegisterU16;
 use crate::{
     marker::mode, AlertPolarity, BitFlagsHigh as BFH, BitFlagsLow as BFL, Config,
     ConversionRate as CR, Error, FaultQueue, ModeChangeError, Register, ThermostatMode, Tmp1x2,
@@ -53,16 +54,7 @@ where
 
     pub(crate) fn trigger_one_shot_measurement(&mut self) -> Result<(), Error<E>> {
         // This bit is not stored
-        self.i2c
-            .write(
-                self.address,
-                &[
-                    Register::CONFIG,
-                    self.config.msb,
-                    self.config.lsb | BFL::ONE_SHOT,
-                ],
-            )
-            .map_err(Error::I2C)
+        self.write_register(Register::CONFIG, self.config.with_high_msb(BFH::ONE_SHOT))
     }
 }
 
@@ -71,21 +63,18 @@ where
     I2C: i2c::I2c<Error = E>,
 {
     fn config_continuous(&mut self) -> Result<(), Error<E>> {
-        let Config { lsb, msb } = self.config;
-        self.write_config(lsb & !BFL::SHUTDOWN, msb)
+        self.write_config(self.config.with_low_msb(BFH::SHUTDOWN))
     }
 
     fn config_one_shot(&mut self) -> Result<(), Error<E>> {
-        let Config { lsb, msb } = self.config;
-        self.write_config(lsb | BFL::SHUTDOWN, msb)
+        self.write_config(self.config.with_high_msb(BFH::SHUTDOWN))
     }
 
     /// Enable the extended measurement mode.
     ///
     /// This allows measurement of temperatures above 128°C.
     pub fn enable_extended_mode(&mut self) -> Result<(), Error<E>> {
-        let Config { lsb, msb } = self.config;
-        self.write_config(lsb, msb | BFH::EXTENDED_MODE)
+        self.write_config(self.config.with_high_lsb(BFL::EXTENDED_MODE))
     }
 
     /// Disable the extended measurement mode.
@@ -93,18 +82,29 @@ where
     /// This puts the device in normal measurement mode. It will not measure
     /// temperatures above 128°C.
     pub fn disable_extended_mode(&mut self) -> Result<(), Error<E>> {
-        let Config { lsb, msb } = self.config;
-        self.write_config(lsb, msb & !BFH::EXTENDED_MODE)
+        self.write_config(self.config.with_low_lsb(BFL::EXTENDED_MODE))
     }
 
     /// Set the conversion rate when in continuous conversion mode.
     pub fn set_conversion_rate(&mut self, rate: CR) -> Result<(), Error<E>> {
         let Config { lsb, msb } = self.config;
         match rate {
-            CR::_0_25Hz => self.write_config(lsb, msb & !BFH::CONV_RATE1 & !BFH::CONV_RATE0),
-            CR::_1Hz => self.write_config(lsb, msb & !BFH::CONV_RATE1 | BFH::CONV_RATE0),
-            CR::_4Hz => self.write_config(lsb, msb | BFH::CONV_RATE1 & !BFH::CONV_RATE0),
-            CR::_8Hz => self.write_config(lsb, msb | BFH::CONV_RATE1 | BFH::CONV_RATE0),
+            CR::_0_25Hz => self.write_config(Config {
+                lsb: lsb & !BFL::CONV_RATE1 & !BFL::CONV_RATE0,
+                msb,
+            }),
+            CR::_1Hz => self.write_config(Config {
+                lsb: lsb & !BFL::CONV_RATE1 | BFL::CONV_RATE0,
+                msb,
+            }),
+            CR::_4Hz => self.write_config(Config {
+                lsb: lsb | BFL::CONV_RATE1 & !BFL::CONV_RATE0,
+                msb,
+            }),
+            CR::_8Hz => self.write_config(Config {
+                lsb: lsb | BFL::CONV_RATE1 | BFL::CONV_RATE0,
+                msb,
+            }),
         }
     }
 
@@ -131,12 +131,12 @@ where
         temperature: f32,
         register: u8,
     ) -> Result<(), Error<E>> {
-        if (self.config.msb & BFH::EXTENDED_MODE) != 0 {
+        if (self.config.lsb & BFL::EXTENDED_MODE) != 0 {
             let (msb, lsb) = convert_temp_to_register_extended(temperature);
-            self.write_register(register, lsb, msb)
+            self.write_register(register, RegisterU16 { lsb, msb })
         } else {
             let (msb, lsb) = convert_temp_to_register_normal(temperature);
-            self.write_register(register, lsb, msb)
+            self.write_register(register, RegisterU16 { lsb, msb })
         }
     }
 
@@ -146,28 +146,46 @@ where
     pub fn set_fault_queue(&mut self, fq: FaultQueue) -> Result<(), Error<E>> {
         let Config { lsb, msb } = self.config;
         match fq {
-            FaultQueue::_1 => self.write_config(lsb & !BFL::FAULT_QUEUE1 & !BFL::FAULT_QUEUE0, msb),
-            FaultQueue::_2 => self.write_config(lsb & !BFL::FAULT_QUEUE1 | BFL::FAULT_QUEUE0, msb),
-            FaultQueue::_4 => self.write_config(lsb | BFL::FAULT_QUEUE1 & !BFL::FAULT_QUEUE0, msb),
-            FaultQueue::_6 => self.write_config(lsb | BFL::FAULT_QUEUE1 | BFL::FAULT_QUEUE0, msb),
+            FaultQueue::_1 => self.write_config(Config {
+                lsb,
+                msb: msb & !BFH::FAULT_QUEUE1 & !BFH::FAULT_QUEUE0,
+            }),
+            FaultQueue::_2 => self.write_config(Config {
+                lsb,
+                msb: msb & !BFH::FAULT_QUEUE1 | BFH::FAULT_QUEUE0,
+            }),
+            FaultQueue::_4 => self.write_config(Config {
+                lsb,
+                msb: msb | BFH::FAULT_QUEUE1 & !BFH::FAULT_QUEUE0,
+            }),
+            FaultQueue::_6 => self.write_config(Config {
+                lsb,
+                msb: msb | BFH::FAULT_QUEUE1 | BFH::FAULT_QUEUE0,
+            }),
         }
     }
 
     /// Set the alert polarity.
     pub fn set_alert_polarity(&mut self, polarity: AlertPolarity) -> Result<(), Error<E>> {
-        let Config { lsb, msb } = self.config;
         match polarity {
-            AlertPolarity::ActiveLow => self.write_config(lsb & !BFL::ALERT_POLARITY, msb),
-            AlertPolarity::ActiveHigh => self.write_config(lsb | BFL::ALERT_POLARITY, msb),
+            AlertPolarity::ActiveLow => {
+                self.write_config(self.config.with_low_msb(BFH::ALERT_POLARITY))
+            }
+            AlertPolarity::ActiveHigh => {
+                self.write_config(self.config.with_high_msb(BFH::ALERT_POLARITY))
+            }
         }
     }
 
     /// Set the thermostat mode.
     pub fn set_thermostat_mode(&mut self, mode: ThermostatMode) -> Result<(), Error<E>> {
-        let Config { lsb, msb } = self.config;
         match mode {
-            ThermostatMode::Comparator => self.write_config(lsb & !BFL::THERMOSTAT, msb),
-            ThermostatMode::Interrupt => self.write_config(lsb | BFL::THERMOSTAT, msb),
+            ThermostatMode::Comparator => {
+                self.write_config(self.config.with_low_msb(BFH::THERMOSTAT))
+            }
+            ThermostatMode::Interrupt => {
+                self.write_config(self.config.with_high_msb(BFH::THERMOSTAT))
+            }
         }
     }
 
@@ -184,17 +202,5 @@ where
     /// and in the driver match.
     pub fn reset_internal_driver_state(&mut self) {
         self.config = Config::default();
-    }
-
-    fn write_config(&mut self, lsb: u8, msb: u8) -> Result<(), Error<E>> {
-        self.write_register(Register::CONFIG, lsb, msb)?;
-        self.config = Config { lsb, msb };
-        Ok(())
-    }
-
-    fn write_register(&mut self, register: u8, lsb: u8, msb: u8) -> Result<(), Error<E>> {
-        self.i2c
-            .write(self.address, &[register, msb, lsb])
-            .map_err(Error::I2C)
     }
 }

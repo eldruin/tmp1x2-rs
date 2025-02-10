@@ -31,7 +31,7 @@ macro_rules! config_test {
 fn can_change_into_one_shot() {
     let expectations = [I2cTransaction::write(
         DEVICE_ADDRESS,
-        vec![Register::CONFIG, DEFAULT_MSB, DEFAULT_LSB | 1],
+        vec![Register::CONFIG, DEFAULT_MSB | 1, DEFAULT_LSB],
     )];
     let dev = setup(&expectations);
     let dev = dev.into_one_shot().unwrap();
@@ -43,7 +43,7 @@ fn can_change_into_continuous() {
     let expectations = [
         I2cTransaction::write(
             DEVICE_ADDRESS,
-            vec![Register::CONFIG, DEFAULT_MSB, DEFAULT_LSB | 1],
+            vec![Register::CONFIG, DEFAULT_MSB | 1, DEFAULT_LSB],
         ),
         I2cTransaction::write(
             DEVICE_ADDRESS,
@@ -59,8 +59,8 @@ fn can_change_into_continuous() {
 config_test!(
     can_enable_extended_mode,
     enable_extended_mode,
-    DEFAULT_LSB,
-    DEFAULT_MSB | BFH::EXTENDED_MODE
+    DEFAULT_LSB | BFL::EXTENDED_MODE,
+    DEFAULT_MSB
 );
 config_test!(
     can_disable_extended_mode,
@@ -86,88 +86,88 @@ config_value_test!(
     can_set_cr_0_25,
     set_conversion_rate,
     CR::_0_25Hz,
-    DEFAULT_LSB,
-    DEFAULT_MSB & !BFH::CONV_RATE1 & !BFH::CONV_RATE0
+    DEFAULT_LSB & !BFL::CONV_RATE1 & !BFL::CONV_RATE0,
+    DEFAULT_MSB
 );
 config_value_test!(
     can_set_cr_1,
     set_conversion_rate,
     CR::_1Hz,
-    DEFAULT_LSB,
-    DEFAULT_MSB & !BFH::CONV_RATE1 | BFH::CONV_RATE0
+    DEFAULT_LSB & !BFL::CONV_RATE1 | BFL::CONV_RATE0,
+    DEFAULT_MSB
 );
 config_value_test!(
     can_set_cr_4,
     set_conversion_rate,
     CR::_4Hz,
-    DEFAULT_LSB,
-    DEFAULT_MSB | BFH::CONV_RATE1 & !BFH::CONV_RATE0
+    DEFAULT_LSB | BFL::CONV_RATE1 & !BFL::CONV_RATE0,
+    DEFAULT_MSB
 );
 config_value_test!(
     can_set_cr_8,
     set_conversion_rate,
     CR::_8Hz,
-    DEFAULT_LSB,
-    DEFAULT_MSB | BFH::CONV_RATE1 | BFH::CONV_RATE0
+    DEFAULT_LSB | BFL::CONV_RATE1 | BFL::CONV_RATE0,
+    DEFAULT_MSB
 );
 
 config_value_test!(
     can_set_fq_1,
     set_fault_queue,
     FQ::_1,
-    DEFAULT_LSB & !BFL::FAULT_QUEUE1 & !BFL::FAULT_QUEUE0,
-    DEFAULT_MSB
+    DEFAULT_LSB,
+    DEFAULT_MSB & !BFH::FAULT_QUEUE1 & !BFH::FAULT_QUEUE0
 );
 config_value_test!(
     can_set_fq_2,
     set_fault_queue,
     FQ::_2,
-    DEFAULT_LSB & !BFL::FAULT_QUEUE1 | BFL::FAULT_QUEUE0,
-    DEFAULT_MSB
+    DEFAULT_LSB,
+    DEFAULT_MSB & !BFH::FAULT_QUEUE1 | BFH::FAULT_QUEUE0
 );
 config_value_test!(
     can_set_fq_4,
     set_fault_queue,
     FQ::_4,
-    DEFAULT_LSB | BFL::FAULT_QUEUE1 & !BFL::FAULT_QUEUE0,
-    DEFAULT_MSB
+    DEFAULT_LSB,
+    DEFAULT_MSB | BFH::FAULT_QUEUE1 & !BFH::FAULT_QUEUE0
 );
 config_value_test!(
     can_set_fq_6,
     set_fault_queue,
     FQ::_6,
-    DEFAULT_LSB | BFL::FAULT_QUEUE1 | BFL::FAULT_QUEUE0,
-    DEFAULT_MSB
+    DEFAULT_LSB,
+    DEFAULT_MSB | BFH::FAULT_QUEUE1 | BFH::FAULT_QUEUE0
 );
 
 config_value_test!(
     can_set_ap_low,
     set_alert_polarity,
     AP::ActiveLow,
-    DEFAULT_LSB & !BFL::ALERT_POLARITY,
-    DEFAULT_MSB
+    DEFAULT_LSB,
+    DEFAULT_MSB & !BFH::ALERT_POLARITY
 );
 config_value_test!(
     can_set_ap_high,
     set_alert_polarity,
     AP::ActiveHigh,
-    DEFAULT_LSB | BFL::ALERT_POLARITY,
-    DEFAULT_MSB
+    DEFAULT_LSB,
+    DEFAULT_MSB | BFH::ALERT_POLARITY
 );
 
 config_value_test!(
     can_set_tm_comp,
     set_thermostat_mode,
     TM::Comparator,
-    DEFAULT_LSB & !BFL::THERMOSTAT,
-    DEFAULT_MSB
+    DEFAULT_LSB,
+    DEFAULT_MSB & !BFH::THERMOSTAT
 );
 config_value_test!(
     can_set_tm_int,
     set_thermostat_mode,
     TM::Interrupt,
-    DEFAULT_LSB | BFL::THERMOSTAT,
-    DEFAULT_MSB
+    DEFAULT_LSB,
+    DEFAULT_MSB | BFH::THERMOSTAT
 );
 
 macro_rules! set_value_test {
@@ -223,8 +223,8 @@ fn can_set_extended_high_temp_threshold() {
             DEVICE_ADDRESS,
             vec![
                 Register::CONFIG,
-                DEFAULT_MSB | BFH::EXTENDED_MODE,
-                DEFAULT_LSB,
+                DEFAULT_MSB,
+                DEFAULT_LSB | BFL::EXTENDED_MODE,
             ],
         ),
         I2cTransaction::write(
