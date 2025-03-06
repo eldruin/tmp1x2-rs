@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- next-header -->
 ## [Unreleased] - ReleaseDate
 
+## [1.0.1] - 2025-03-06
+
 ### Fixed
 - Swap in configuration register byte order.
 
@@ -49,7 +51,8 @@ may be some API changes in the future. All changes will be documented in this
 CHANGELOG.
 
 <!-- next-url -->
-[Unreleased]: https://github.com/eldruin/tmp1x2-rs/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/eldruin/tmp1x2-rs/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/eldruin/tmp1x2-rs/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/eldruin/tmp1x2-rs/compare/v0.2.1...v1.0.0
 [0.2.1]: https://github.com/eldruin/tmp1x2-rs/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/eldruin/tmp1x2-rs/compare/v0.1.0...v0.2.0
