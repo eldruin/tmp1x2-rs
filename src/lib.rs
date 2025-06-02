@@ -56,6 +56,8 @@
 //! ### Read temperature in continuous mode
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
@@ -65,11 +67,14 @@
 //! let mut sensor = Tmp1x2::new(dev, address);
 //! let temperature = sensor.read_temperature().unwrap();
 //! println!("Temperature: {}", temperature);
+//! # }
 //! ```
 //!
 //! ### Provide an alternative address
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
@@ -77,11 +82,14 @@
 //! let (a1, a0) = (false, true);
 //! let address = SlaveAddr::Alternative(a1, a0);
 //! let mut sensor = Tmp1x2::new(dev, address);
+//! # }
 //! ```
 //!
 //! ### Change into one-shot mode and trigger a measurement
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use nb::block;
 //! use tmp1x2::{Tmp1x2, SlaveAddr};
@@ -90,11 +98,14 @@
 //! let sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! let mut sensor = sensor.into_one_shot().ok().expect("Mode change error");
 //! let temperature = block!(sensor.read_temperature());
+//! # }
 //! ```
 //!
 //! ### Get the device back if there was an error during a mode change
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{ModeChangeError, Tmp1x2, SlaveAddr};
 //!
@@ -108,33 +119,42 @@
 //! } else {
 //!     unreachable!();
 //! }
+//! # }
 //! ```
 //!
 //! ### Enable the extended measurement mode
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.enable_extended_mode().unwrap();
+//! # }
 //! ```
 //!
 //! ### Set the conversion rate to 1Hz
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr, ConversionRate};
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_conversion_rate(ConversionRate::_1Hz).unwrap();
+//! # }
 //! ```
 //!
 //! ### Set the high and low temperature thresholds
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr, ConversionRate};
 //!
@@ -142,6 +162,7 @@
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_low_temperature_threshold(-15.0).unwrap();
 //! sensor.set_high_temperature_threshold(60.0).unwrap();
+//! # }
 //! ```
 //!
 //! ### Set the fault queue
@@ -149,34 +170,43 @@
 //! This sets the number of consecutive faults that will trigger an alert.
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr, FaultQueue};
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_fault_queue(FaultQueue::_4).unwrap();
+//! # }
 //! ```
 //!
 //! ### Set the alert polarity
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{ Tmp1x2, SlaveAddr, AlertPolarity };
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_alert_polarity(AlertPolarity::ActiveHigh).unwrap();
+//! # }
 //! ```
 //!
 //! ### Set the thermostat mode
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{ Tmp1x2, SlaveAddr, ThermostatMode };
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! sensor.set_thermostat_mode(ThermostatMode::Interrupt).unwrap();
+//! # }
 //! ```
 //!
 //! ### Check whether an alert is active as defined by the comparator mode
@@ -185,12 +215,15 @@
 //! the status as defined by the comparator mode.
 //!
 //! ```no_run
+//! # #[cfg(not(feature = "async"))]
+//! # {
 //! use linux_embedded_hal::I2cdev;
 //! use tmp1x2::{Tmp1x2, SlaveAddr};
 //!
 //! let dev = I2cdev::new("/dev/i2c-1").unwrap();
 //! let mut sensor = Tmp1x2::new(dev, SlaveAddr::default());
 //! let alert = sensor.is_comparator_mode_alert_active().unwrap();
+//! # }
 //! ```
 
 #![deny(unsafe_code)]
@@ -198,7 +231,10 @@
 #![no_std]
 
 use core::marker::PhantomData;
-use embedded_hal::i2c;
+#[cfg(not(feature = "async"))]
+use embedded_hal::i2c::I2c;
+#[cfg(feature = "async")]
+use embedded_hal_async::i2c::I2c as AsyncI2c;
 pub use nb;
 
 /// Possible errors in this crate
@@ -387,8 +423,16 @@ pub mod marker {
 }
 
 /// TMP1X2 device driver.
+#[maybe_async_cfg::maybe(
+    sync(
+        cfg(not(feature = "async")),
+        self = "Tmp1x2",
+        idents(AsyncI2c(sync = "I2c"))
+    ),
+    async(feature = "async", keep_self)
+)]
 #[derive(Debug, Default)]
-pub struct Tmp1x2<I2C, MODE> {
+pub struct Tmp1x2<I2C: AsyncI2c, MODE> {
     /// The concrete I²C device implementation.
     i2c: I2C,
     /// The I²C device address.
@@ -400,9 +444,17 @@ pub struct Tmp1x2<I2C, MODE> {
     _mode: PhantomData<MODE>,
 }
 
+#[maybe_async_cfg::maybe(
+    sync(
+        cfg(not(feature = "async")),
+        self = "Tmp1x2",
+        idents(AsyncI2c(sync = "I2c"))
+    ),
+    async(feature = "async", keep_self)
+)]
 impl<I2C, E> Tmp1x2<I2C, marker::mode::Continuous>
 where
-    I2C: i2c::I2c<Error = E>,
+    I2C: AsyncI2c<Error = E>,
 {
     /// Create new instance of the TMP102 or TMP112x device.
     ///
@@ -418,7 +470,18 @@ where
     }
 }
 
-impl<I2C, MODE> Tmp1x2<I2C, MODE> {
+#[maybe_async_cfg::maybe(
+    sync(
+        cfg(not(feature = "async")),
+        self = "Tmp1x2",
+        idents(AsyncI2c(sync = "I2c"))
+    ),
+    async(feature = "async", keep_self)
+)]
+impl<I2C, E, MODE> Tmp1x2<I2C, MODE>
+where
+    I2C: AsyncI2c<Error = E>,
+{
     /// Destroy driver instance, return I²C bus instance.
     pub fn destroy(self) -> I2C {
         self.i2c

@@ -16,11 +16,14 @@ fn get_expectation(register: u8, lsb: u8, msb: u8) -> [I2cTransaction; 1] {
 
 macro_rules! read_test {
     ($name:ident, $method:ident, $register:ident, $lsb:expr, $msb:expr, $expected:expr) => {
-        #[test]
-        fn $name() {
+        #[maybe_async_cfg::maybe(
+            sync(cfg(not(feature = "async")), test),
+            async(feature = "async", tokio::test)
+        )]
+        async fn $name() {
             let expectations = get_expectation(Register::$register, $lsb, $msb);
             let mut dev = setup(&expectations);
-            let value = dev.$method().unwrap();
+            let value = dev.$method().await.unwrap();
             assert_eq!($expected, value);
             dev.destroy().done();
         }
@@ -67,8 +70,11 @@ macro_rules! assert_near {
     };
 }
 
-#[test]
-fn in_one_shot_read_temperature_triggers_measurement() {
+#[maybe_async_cfg::maybe(
+    sync(cfg(not(feature = "async")), test),
+    async(feature = "async", tokio::test)
+)]
+async fn in_one_shot_read_temperature_triggers_measurement() {
     let expectations = [
         I2cTransaction::write(
             DEVICE_ADDRESS,
@@ -88,16 +94,19 @@ fn in_one_shot_read_temperature_triggers_measurement() {
         ),
     ];
     let dev = setup(&expectations);
-    let mut dev = dev.into_one_shot().unwrap();
-    match dev.read_temperature() {
+    let mut dev = dev.into_one_shot().await.unwrap();
+    match dev.read_temperature().await {
         Err(nb::Error::WouldBlock) => (),
         _ => panic!(),
     }
     dev.destroy().done();
 }
 
-#[test]
-fn in_one_shot_read_temperature_returns_would_block_if_not_ready() {
+#[maybe_async_cfg::maybe(
+    sync(cfg(not(feature = "async")), test),
+    async(feature = "async", tokio::test)
+)]
+async fn in_one_shot_read_temperature_returns_would_block_if_not_ready() {
     let expectations = [
         I2cTransaction::write(
             DEVICE_ADDRESS,
@@ -122,17 +131,22 @@ fn in_one_shot_read_temperature_returns_would_block_if_not_ready() {
         ),
     ];
     let dev = setup(&expectations);
-    let mut dev = dev.into_one_shot().unwrap();
-    dev.read_temperature().expect_err("Should return an error");
-    match dev.read_temperature() {
+    let mut dev = dev.into_one_shot().await.unwrap();
+    dev.read_temperature()
+        .await
+        .expect_err("Should return an error");
+    match dev.read_temperature().await {
         Err(nb::Error::WouldBlock) => (),
         _ => panic!(),
     }
     dev.destroy().done();
 }
 
-#[test]
-fn in_one_shot_can_read_temperature() {
+#[maybe_async_cfg::maybe(
+    sync(cfg(not(feature = "async")), test),
+    async(feature = "async", tokio::test)
+)]
+async fn in_one_shot_can_read_temperature() {
     let expectations = [
         I2cTransaction::write(
             DEVICE_ADDRESS,
@@ -162,22 +176,27 @@ fn in_one_shot_can_read_temperature() {
         ),
     ];
     let dev = setup(&expectations);
-    let mut dev = dev.into_one_shot().unwrap();
-    dev.read_temperature().expect_err("Should return an error");
-    let temp = dev.read_temperature().unwrap();
+    let mut dev = dev.into_one_shot().await.unwrap();
+    dev.read_temperature()
+        .await
+        .expect_err("Should return an error");
+    let temp = dev.read_temperature().await.unwrap();
     assert_near!(100.0, temp);
     dev.destroy().done();
 }
 
-#[test]
-fn in_continuous_can_read_temperature() {
+#[maybe_async_cfg::maybe(
+    sync(cfg(not(feature = "async")), test),
+    async(feature = "async", tokio::test)
+)]
+async fn in_continuous_can_read_temperature() {
     let expectations = [I2cTransaction::write_read(
         DEVICE_ADDRESS,
         vec![Register::TEMPERATURE],
         vec![0b0110_0100, 0],
     )];
     let mut dev = setup(&expectations);
-    let value = dev.read_temperature().unwrap();
+    let value = dev.read_temperature().await.unwrap();
     assert_near!(100.0, value);
     dev.destroy().done();
 }

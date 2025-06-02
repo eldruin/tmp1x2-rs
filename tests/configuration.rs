@@ -16,30 +16,39 @@ fn get_write_expectation(register: u8, lsb: u8, msb: u8) -> [I2cTransaction; 1] 
 
 macro_rules! config_test {
     ($name:ident, $method:ident, $expected_lsb:expr, $expected_msb:expr) => {
-        #[test]
-        fn $name() {
+        #[maybe_async_cfg::maybe(
+            sync(cfg(not(feature = "async")), test),
+            async(feature = "async", tokio::test)
+        )]
+        async fn $name() {
             let expectations =
                 get_write_expectation(Register::CONFIG, $expected_lsb, $expected_msb);
             let mut dev = setup(&expectations);
-            dev.$method().unwrap();
+            dev.$method().await.unwrap();
             dev.destroy().done();
         }
     };
 }
 
-#[test]
-fn can_change_into_one_shot() {
+#[maybe_async_cfg::maybe(
+    sync(cfg(not(feature = "async")), test),
+    async(feature = "async", tokio::test)
+)]
+async fn can_change_into_one_shot() {
     let expectations = [I2cTransaction::write(
         DEVICE_ADDRESS,
         vec![Register::CONFIG, DEFAULT_MSB | 1, DEFAULT_LSB],
     )];
     let dev = setup(&expectations);
-    let dev = dev.into_one_shot().unwrap();
+    let dev = dev.into_one_shot().await.unwrap();
     dev.destroy().done();
 }
 
-#[test]
-fn can_change_into_continuous() {
+#[maybe_async_cfg::maybe(
+    sync(cfg(not(feature = "async")), test),
+    async(feature = "async", tokio::test)
+)]
+async fn can_change_into_continuous() {
     let expectations = [
         I2cTransaction::write(
             DEVICE_ADDRESS,
@@ -51,8 +60,8 @@ fn can_change_into_continuous() {
         ),
     ];
     let dev = setup(&expectations);
-    let dev = dev.into_one_shot().unwrap();
-    let dev = dev.into_continuous().unwrap();
+    let dev = dev.into_one_shot().await.unwrap();
+    let dev = dev.into_continuous().await.unwrap();
     dev.destroy().done();
 }
 
@@ -71,12 +80,15 @@ config_test!(
 
 macro_rules! config_value_test {
     ($name:ident, $method:ident, $value:expr, $expected_lsb:expr, $expected_msb:expr) => {
-        #[test]
-        fn $name() {
+        #[maybe_async_cfg::maybe(
+            sync(cfg(not(feature = "async")), test),
+            async(feature = "async", tokio::test)
+        )]
+        async fn $name() {
             let expectations =
                 get_write_expectation(Register::CONFIG, $expected_lsb, $expected_msb);
             let mut dev = setup(&expectations);
-            dev.$method($value).unwrap();
+            dev.$method($value).await.unwrap();
             dev.destroy().done();
         }
     };
@@ -172,11 +184,14 @@ config_value_test!(
 
 macro_rules! set_value_test {
     ($name:ident, $method:ident, $value:expr, $register:expr, $expected_lsb:expr, $expected_msb:expr) => {
-        #[test]
-        fn $name() {
+        #[maybe_async_cfg::maybe(
+            sync(cfg(not(feature = "async")), test),
+            async(feature = "async", tokio::test)
+        )]
+        async fn $name() {
             let expectations = get_write_expectation($register, $expected_lsb, $expected_msb);
             let mut dev = setup(&expectations);
-            dev.$method($value).unwrap();
+            dev.$method($value).await.unwrap();
             dev.destroy().done();
         }
     };
@@ -216,8 +231,11 @@ set_value_test!(
     0b0111_1111
 );
 
-#[test]
-fn can_set_extended_high_temp_threshold() {
+#[maybe_async_cfg::maybe(
+    sync(cfg(not(feature = "async")), test),
+    async(feature = "async", tokio::test)
+)]
+async fn can_set_extended_high_temp_threshold() {
     let expectations = [
         I2cTransaction::write(
             DEVICE_ADDRESS,
@@ -233,7 +251,7 @@ fn can_set_extended_high_temp_threshold() {
         ),
     ];
     let mut dev = setup(&expectations);
-    dev.enable_extended_mode().unwrap();
-    dev.set_high_temperature_threshold(255.875).unwrap();
+    dev.enable_extended_mode().await.unwrap();
+    dev.set_high_temperature_threshold(255.875).await.unwrap();
     dev.destroy().done();
 }

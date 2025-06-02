@@ -2,7 +2,7 @@
 
 [![crates.io](https://img.shields.io/crates/v/tmp1x2.svg)](https://crates.io/crates/tmp1x2)
 [![Docs](https://docs.rs/tmp1x2/badge.svg)](https://docs.rs/tmp1x2)
-![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.62+-blue.svg)
+![Minimum Supported Rust Version](https://img.shields.io/badge/rustc-1.75+-blue.svg)
 [![Build Status](https://github.com/eldruin/tmp1x2-rs/workflows/Build/badge.svg)](https://github.com/eldruin/tmp1x2-rs/actions?query=workflow%3ABuild)
 [![Coverage Status](https://coveralls.io/repos/github/eldruin/tmp1x2-rs/badge.svg?branch=master)](https://coveralls.io/github/eldruin/tmp1x2-rs?branch=master)
 
@@ -68,6 +68,9 @@ fn main() {
     println!("Temperature: {:.1}ºC", temperature);
 }
 ```
+
+Additionally, async support can be enabled via the `async` feature. For example:  
+`cargo build --features async`
 
 ## Support
 
