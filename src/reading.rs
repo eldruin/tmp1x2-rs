@@ -1,25 +1,44 @@
 use crate::conversion::convert_temp_from_register;
 use crate::{marker::mode, BitFlagsHigh, BitFlagsLow, Error, Register, Tmp1x2};
-use embedded_hal::i2c;
+#[cfg(not(feature = "async"))]
+use embedded_hal::i2c::I2c;
+#[cfg(feature = "async")]
+use embedded_hal_async::i2c::I2c as AsyncI2c;
 
+#[maybe_async_cfg::maybe(
+    sync(
+        cfg(not(feature = "async")),
+        self = "Tmp1x2",
+        idents(AsyncI2c(sync = "I2c"))
+    ),
+    async(feature = "async", keep_self)
+)]
 impl<I2C, E> Tmp1x2<I2C, mode::Continuous>
 where
-    I2C: i2c::I2c<Error = E>,
+    I2C: AsyncI2c<Error = E>,
 {
     /// Read the temperature from the sensor.
-    pub fn read_temperature(&mut self) -> Result<f32, Error<E>> {
-        let data = self.read_register_u16(Register::TEMPERATURE)?;
+    pub async fn read_temperature(&mut self) -> Result<f32, Error<E>> {
+        let data = self.read_register_u16(Register::TEMPERATURE).await?;
         Ok(convert_temp_from_register(data.msb, data.lsb))
     }
 }
 
+#[maybe_async_cfg::maybe(
+    sync(
+        cfg(not(feature = "async")),
+        self = "Tmp1x2",
+        idents(AsyncI2c(sync = "I2c"))
+    ),
+    async(feature = "async", keep_self)
+)]
 impl<I2C, E> Tmp1x2<I2C, mode::OneShot>
 where
-    I2C: i2c::I2c<Error = E>,
+    I2C: AsyncI2c<Error = E>,
 {
     /// Read whether the one-shot measurement result is ready.
-    fn one_shot_measurement_is_ready(&mut self) -> Result<bool, Error<E>> {
-        let config = self.read_register_u16(Register::CONFIG)?;
+    async fn one_shot_measurement_is_ready(&mut self) -> Result<bool, Error<E>> {
+        let config = self.read_register_u16(Register::CONFIG).await?;
         Ok((config.msb & BitFlagsHigh::ONE_SHOT) != 0)
     }
 
@@ -35,21 +54,24 @@ where
     /// will continue to return `nb::Error::WouldBlock` until the
     /// temperature measurement is finished. Then it will return the
     /// measured temperature.
-    pub fn read_temperature(&mut self) -> nb::Result<f32, Error<E>> {
+    pub async fn read_temperature(&mut self) -> nb::Result<f32, Error<E>> {
         if !self.a_temperature_conversion_was_started {
             self.trigger_one_shot_measurement()
+                .await
                 .map_err(nb::Error::Other)?;
             self.a_temperature_conversion_was_started = true;
             return Err(nb::Error::WouldBlock);
         }
         if !self
             .one_shot_measurement_is_ready()
+            .await
             .map_err(nb::Error::Other)?
         {
             Err(nb::Error::WouldBlock)
         } else {
             let data = self
                 .read_register_u16(Register::TEMPERATURE)
+                .await
                 .map_err(nb::Error::Other)?;
             let temp = convert_temp_from_register(data.msb, data.lsb);
             self.a_temperature_conversion_was_started = false;
@@ -58,9 +80,17 @@ where
     }
 }
 
+#[maybe_async_cfg::maybe(
+    sync(
+        cfg(not(feature = "async")),
+        self = "Tmp1x2",
+        idents(AsyncI2c(sync = "I2c"))
+    ),
+    async(feature = "async", keep_self)
+)]
 impl<I2C, E, MODE> Tmp1x2<I2C, MODE>
 where
-    I2C: i2c::I2c<Error = E>,
+    I2C: AsyncI2c<Error = E>,
 {
     /// Read whether an alert is active as defined by the comparator mode.
     ///
@@ -72,8 +102,8 @@ where
     /// See also: [ThermostatMode](enum.ThermostatMode.html),
     /// [AlertPolarity](enum.AlertPolarity.html).
     #[allow(clippy::wrong_self_convention)]
-    pub fn is_comparator_mode_alert_active(&mut self) -> Result<bool, Error<E>> {
-        let config = self.read_register_u16(Register::CONFIG)?;
+    pub async fn is_comparator_mode_alert_active(&mut self) -> Result<bool, Error<E>> {
+        let config = self.read_register_u16(Register::CONFIG).await?;
         let is_alert_polarity_high = (config.msb & BitFlagsHigh::ALERT_POLARITY) != 0;
         let alert_status = (config.lsb & BitFlagsLow::ALERT) != 0;
         Ok(is_alert_polarity_high == alert_status)
